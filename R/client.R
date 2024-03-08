@@ -113,13 +113,15 @@ Client <- R6::R6Class("Client",
       )
 
       resp <- httr2::last_response()
-      if (resp$status_code == 200 || resp$status_code == 201)
+      if (resp$status_code == 200 || resp$status_code == 201 || resp$status_code == 202)
       {
-        if (httr2::resp_content_type(resp) == "application/json")
+        content_type <- httr2::resp_content_type(resp)
+        data <- NA
+        if (!is.na(content_type) && content_type == "application/json")
         {
-          return(httr2::resp_body_json(resp))
+          data <- httr2::resp_body_json(resp)
         }
-        return(NA)
+        return(list('data' = data, 'status_code' = resp$status_code))
       }
       stop(httr2::resp_body_json(resp)$detail)
     },
@@ -137,7 +139,7 @@ Client <- R6::R6Class("Client",
       url <- paste0(self$apiUrl, "/termsaccepted/Copernicus_General_License")
       req <- httr2::request(url) %>% httr2::req_method("PUT")
 
-      resp <- self$send_request(req)
+      resp <- self$send_request(req)$data
     },
 
 
@@ -159,9 +161,7 @@ Client <- R6::R6Class("Client",
              httr2::req_method("GET") %>%
              httr2::req_url_query(q = pattern, startIndex = 0, itemsPerPage = 20000)
 
-#      datasets?q=vege&startIndex=0&itemsPerPage=10
-
-      resp <- self$send_request(req)
+      resp <- self$send_request(req)$data
 
       datasets <- lapply(resp$features, function(x)
             {
@@ -227,7 +227,7 @@ Client <- R6::R6Class("Client",
       req <- httr2::request(url) %>%
              httr2::req_method("GET")
 
-      resp <- self$send_request(req)
+      resp <- self$send_request(req)$data
 
       if(to_json)
       {

@@ -7,7 +7,6 @@ SearchResults <- R6::R6Class("SearchResults",
     initialize = function(client, results, dataset_id) {
       private$client <- client
       private$dataset_id <- dataset_id
-      print(paste("search_result | results.length = ", length(results)))
       self$results <- results
     },
 
@@ -20,13 +19,17 @@ SearchResults <- R6::R6Class("SearchResults",
 
       print("[Download] Downloading...")
 
-      resources_to_download <- self$results #if (missing(selected_indexes)) self$results else self$results[selected_indexes]
+      resources_to_download <- self$results
+      #resources_to_download <- if (missing(selected_indexes)) self$results else self$results[selected_indexes]
 
       for(r in resources_to_download) {
         local_path <- paste0(output_dir, '/', r$id, '.zip')
         if(!file.exists(local_path)) {
           download_id <- private$get_download_id(r)
-          private$download_resource(download_id, local_path)
+          is_ready <- private$ensure_download_is_ready(download_id)
+          if (is_ready) {
+            private$download_resource(download_id, local_path)
+          }
         }
 
       }
@@ -39,41 +42,23 @@ SearchResults <- R6::R6Class("SearchResults",
     client = NULL,
     dataset_id = NULL,
 
-#    check_status = function() {
-#
-#      url <- paste(private$client$apiUrl, "datarequest/status", self$job_id, sep="/")
-#      req <- request(url) %>%
-#             req_method("GET")
-#
-#      resp <- private$client$send_request(req)
-#      self$status <- resp$status
-#    },
+    check_status = function(download_id) {
+      url <- paste(private$client$apiUrl, "dataaccess/download", download_id, sep="/")
+      req <- request(url) %>%
+             req_method("HEAD")
 
-#    ensure_job_is_completed = function() {
-#      while(tolower(self$status) != 'completed' && tolower(self$status) != 'failed') {
-#        Sys.sleep(3)
-#        private$check_status()
-#      }
-#    },
+      resp <- private$client$send_request(req)
+      resp$status_code
+    },
 
-#    get_result_page = function(page = 0, size = 20) {
-#
-#      url <- paste(private$client$apiUrl, "datarequest/jobs", self$job_id, "result", sep="/")
-#      req <- request(url) %>%
-#             req_method("GET") %>%
-#             req_url_query(`page` = page, `size` = size)
-#
-#      resp <- private$client$send_request(req)
-#    },
-
-#    extract_result_essentials = function(entry = NULL) {
-#      list('filename' = entry$filename,
-#           'size' = entry$size,
-#           'url' = entry$url,
-#           'productInfo' = entry$productInfo,
-#           'extraInfo' = entry$extraInformation
-#           )
-#    },
+    ensure_download_is_ready = function(download_id) {
+      status <- 0
+      while(status != 200 && status != 429 && status != 500) {
+        Sys.sleep(3)
+        status <- private$check_status(download_id)
+      }
+      status == 200
+    },
 
     get_download_id = function(resource) {
 
@@ -88,22 +73,18 @@ SearchResults <- R6::R6Class("SearchResults",
               httr2::req_method("POST") %>%
               httr2::req_body_json(params)
 
-      resp = private$client$send_request(req)
+      resp = private$client$send_request(req)$data
       resp$download_id
     },
 
 
   download_resource = function(download_id, local_path) {
 
-      print(paste('[] Getting download_id', download_id, ' into ', local_path, " ..."))
-
       url <- paste0(private$client$apiUrl, "/dataaccess/download/", download_id)
       req <-  httr2::request(url) %>%
               httr2::req_method("GET")
 
-      private$client$send_request(req, path = local_path)
-
-      resp <- httr2::last_response()
+      resp = private$client$send_request(req, path = local_path)
       if (resp$status_code == 200) {
         return(NA)
       }

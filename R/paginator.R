@@ -69,7 +69,7 @@ Paginator <- R6::R6Class("Paginator",
           httr2::req_url_query(!!!params)
       }
 
-      private$client$send_request(req)
+      private$client$send_request(req)$data
     }
 
   )
