@@ -2,11 +2,11 @@ Package: hdar
 Type: Package
 Title: REST API Client for accessing data on WEkEO HDA v2
 Version: 2.0.0
-URL: https://github.com/eea/hdar, https://www.wekeo.eu/
+URL: https://www.wekeo.eu/
 BugReports: https://github.com/eea/hdar/issues
 Authors@R: person("Matteo", "Mattiuzzi", email = "matteo@mattiuzzi.com", role = c("aut", "cre"))
 Description: Download Copernicus data from WEkEO by means of HTTPS REST queries.
-License: EUPL-1.2
+License: EUPL (>= 1.2) | file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.3.1
 Imports:
@@ -16,3 +16,4 @@ Imports:
   magrittr
 Depends: 
     R (>= 2.10),
+Additional_repositories: https://github.com/eea/hdar
