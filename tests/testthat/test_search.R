@@ -55,14 +55,15 @@ test_that("Search - Matches Found", {
   matches <- client$search(QUERY_CORRECT, 2)
 
   # Download files for *all* results
-  matches$download("./deleteme")
+  matches$download("~/deleteme")
+  is.empty.model(matches$download("~/deleteme", recursive = TRUE, force = TRUE))
+  # unlink("~/deleteme", recursive = TRUE, force = TRUE)
 })
 
 test_that("Search - Failed Query", {
   client <- Client$new()
   expect_error(matches <- client$search(QUERY_FAILED), "Search query failed")
 })
-
 
 
 
