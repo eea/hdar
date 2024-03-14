@@ -38,7 +38,7 @@ Auth <- R6::R6Class("Auth",
                       #'
                       get_token = function()
                       {
-                        url <- paste(self$apiUrl, "/gettoken", sep = "")
+                        url <- paste0(self$apiUrl, "/gettoken")
 
                         params <- list(
                           'username' = private$user,
