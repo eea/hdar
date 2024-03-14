@@ -314,84 +314,20 @@ Client <- R6::R6Class("Client",
 
         if (grepl("bbox", param, fixed = TRUE))
         {
-          #value <- setNames(list("bbox", pValue$details$extent), c("name", "bbox"))
           extent <- list(
             data[[param]][["items"]][[1]]$minimum,
-            data[[param]][["items"]][[2]]$maximum,
-            data[[param]][["items"]][[3]]$minimum,
+            data[[param]][["items"]][[2]]$minimum,
+            data[[param]][["items"]][[3]]$maximum,
             data[[param]][["items"]][[4]]$maximum
           )
-
-          value <- c(
-           setNames(list("bbox"), "name"),
-           setNames(list(extent), "bbox")
-          )
-          obj <- c(obj, setNames(list(list(value)), "boundingBoxValues"))
+          obj <- c(obj, setNames(list(extent), "bbox"))
           next
         }
 
-        if (grepl("dateRange", param, fixed = TRUE))
-        {
-          value <- c(
-           setNames(list(pValue$name), "name")
-          )
-          if (!is.null(pValue$details$start))
-          {
-            value <- c(value, setNames(list(pValue$details$start), "start"))
-          }
-          if (!is.null(pValue$details$end))
-          {
-            value <- c(value, setNames(list(pValue$details$end), "end"))
-          } else
-          {
-            value <- c(value, setNames(list(format(Sys.time(), format = "%Y-%m-%dT%H:%M:%SZ")), "end"))
-          }
-          obj <- c(obj, setNames(list(list(value)), "dateRangeSelectValues"))
-          next
-        }
+        pValue <- extractTemplateParamDefaultValue(data[[param]])
+        if (is.null(pValue)) next
 
-        if (grepl("multiString", param, fixed = TRUE))
-        {
-          value <- c(
-           setNames(list(pValue$name), "name"),
-           setNames(list(names(pValue$details$groupedValueLabels[[1]]$valuesLabels)), pValue$name)
-          )
-          obj <- c(obj, setNames(list(list(value)), "multiStringSelectValues"))
-          next
-        }
-
-        if (grepl("stringChoice", param, fixed = TRUE))
-        {
-          value <- c(
-             setNames(list(pValue$name), "name"),
-             setNames(list(names(pValue$details$valuesLabels)[[1]]), pValue$name)
-          )
-          obj <- c(obj, setNames(list(list(value)), "stringChoiceValues"))
-          next
-        }
-
-        if (grepl("stringInput", param, fixed = TRUE))
-        {
-          values <- list()
-
-          for (input in pValue$name)
-          {
-            value <- c(
-             setNames(list(input), "name"),
-             setNames(list("<VALUE>"), input)
-            )
-            values <- append(values, list(value))
-          }
-
-          obj <- c(obj, setNames(list(values), "stringInputValues"))
-          next
-        }
-
-
-        pValue <- data[[param]][["default"]]
-        pValue <- ifelse(is.null(pValue), "", pValue)
         obj <- c(obj, setNames(list(pValue), param))
-
       }
       if (to_json)
       {
