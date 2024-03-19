@@ -157,7 +157,7 @@ Client <- R6::R6Class("Client",
     datasets = function(pattern = NULL)
     {
       url <- paste0(self$apiUrl, "/datasets")
-      #url <- "https://gateway.prod.wekeo2.eu/hda-broker/api/v1/datasets"
+      #url <- "https://gateway.prod.wekeo2.eu/hda-broker/api/v1/datasets" ; library(magrittr) ; pattern='VPP'
       req <- httr2::request(url) %>%
              httr2::req_method("GET") %>%
              httr2::req_url_query(q = pattern, startIndex = 0, itemsPerPage = 20000)
@@ -167,7 +167,7 @@ Client <- R6::R6Class("Client",
 
       datasets <- lapply(resp$features, function(x)
             {
-              #x <- resp$features[[218]]
+              #x <- resp$features#[[218]]
               meta <- x$metadata[["_source"]]
 
               abs <- meta[["abstract"]]
