@@ -157,7 +157,7 @@ Client <- R6::R6Class("Client",
     datasets = function(pattern = NULL)
     {
       url <- paste0(self$apiUrl, "/datasets")
-      #url <- paste0(apiUrl, "/datasets")
+      #url <- "https://gateway.prod.wekeo2.eu/hda-broker/api/v1/datasets"
       req <- httr2::request(url) %>%
              httr2::req_method("GET") %>%
              httr2::req_url_query(q = pattern, startIndex = 0, itemsPerPage = 20000)
@@ -174,13 +174,11 @@ Client <- R6::R6Class("Client",
               if (!is.null(abs))
               {
                 doi <- regmatches(abs, regexpr("https://doi.org/[[:alnum:]\\-]+", abs))
-                if(length(doi) > 0)
-                {
-                  doi <- doi[[1]]
-                } else
+                if(length(doi) == 0)
                 {
                   doi <- NULL
                 }
+
                 abstract <- gsub("https://doi.org/[[:alnum:]\\-]+", "", abs)
               } else
               {
