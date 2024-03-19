@@ -157,30 +157,45 @@ Client <- R6::R6Class("Client",
     datasets = function(pattern = NULL)
     {
       url <- paste0(self$apiUrl, "/datasets")
+      #url <- paste0(apiUrl, "/datasets")
       req <- httr2::request(url) %>%
              httr2::req_method("GET") %>%
              httr2::req_url_query(q = pattern, startIndex = 0, itemsPerPage = 20000)
 
       resp <- self$send_request(req)$data
+      #resp <- client$send_request(req)$data
 
       datasets <- lapply(resp$features, function(x)
             {
+              #x <- resp$features[[218]]
               meta <- x$metadata[["_source"]]
 
               abs <- meta[["abstract"]]
-              titles <- regmatches(abs, gregexpr("\\'\\'\\'([^\\']+):", abs))[[1]]
-
+              if (!is.null(abs))
+              {
+                doi <- regmatches(abs, regexpr("https://doi.org/[[:alnum:]\\-]+", abs))
+                if(length(doi) > 0)
+                {
+                  doi <- doi[[1]]
+                } else
+                {
+                  doi <- NULL
+                }
+                abstract <- gsub("https://doi.org/[[:alnum:]\\-]+", "", abs)
+              } else
+              {
+                doi <- abstract <- NULL
+              }
 
               list (
                 "terms" = x$terms,
                 "dataset_id" = x$dataset_id,
                 "title" = meta[["datasetTitle"]],
-                "abtits" = titles,
-                #"abstract" = gsub("https://doi.org/[[:alnum:]\\-]+", "", abs),
-                #"doi" = regmatches(abs, regexpr("https://doi.org/[[:alnum:]\\-]+", abs)),
+                "abstract" = abstract,
+                "doi" = doi,
                 "thumbnails" = meta[["thumbnails"]]
               )
-            }
+          }
       )
     },
 
