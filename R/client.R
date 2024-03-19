@@ -166,11 +166,18 @@ Client <- R6::R6Class("Client",
       datasets <- lapply(resp$features, function(x)
             {
               meta <- x$metadata[["_source"]]
+
+              abs <- meta[["abstract"]]
+              titles <- regmatches(abs, gregexpr("\\'\\'\\'([^\\']+):", abs))[[1]]
+
+
               list (
                 "terms" = x$terms,
                 "dataset_id" = x$dataset_id,
                 "title" = meta[["datasetTitle"]],
-                "abstract" = meta[["abstract"]],
+                "abtits" = titles,
+                #"abstract" = gsub("https://doi.org/[[:alnum:]\\-]+", "", abs),
+                #"doi" = regmatches(abs, regexpr("https://doi.org/[[:alnum:]\\-]+", abs)),
                 "thumbnails" = meta[["thumbnails"]]
               )
             }
