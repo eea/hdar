@@ -52,12 +52,13 @@ test_that("Search - Matches Found", {
 
   client <- Client$new()
 
-  matches <- client$search(QUERY_CORRECT, 2)
+  matches <- client$search(QUERY_CORRECT,2)
 
   # Download files for *all* results
   matches$download("~/deleteme")
-  is.empty.model(matches$download("~/deleteme", recursive = TRUE, force = TRUE))
-  # unlink("~/deleteme", recursive = TRUE, force = TRUE)
+  print(list.files("~/deleteme", recursive = TRUE))
+  # delete the folder and files
+  unlink("~/deleteme", recursive = TRUE, force = TRUE)
 })
 
 test_that("Search - Failed Query", {
