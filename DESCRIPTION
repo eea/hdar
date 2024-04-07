@@ -13,8 +13,7 @@ Imports:
   R6,
   httr2,
   jsonlite,
-  magrittr,
-  stringr
+  magrittr
 Depends: 
     R (>= 2.10),
 Additional_repositories: https://github.com/eea/hdar
