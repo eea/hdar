@@ -187,7 +187,6 @@ Client <- R6::R6Class("Client",
       html_file_path <- tempfile(fileext = ".html")
       htmltools::save_html(full_html, file = html_file_path)
       browseURL(html_file_path)
-#      htmltools::html_print(full_html)
     },
 
     #' Accept Terms and Conditions
