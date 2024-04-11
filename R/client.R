@@ -126,6 +126,69 @@ Client <- R6::R6Class("Client",
       stop(httr2::resp_body_json(resp)$detail)
     },
 
+    #' Get Terms and Conditions
+    #'
+    #' This function gets the terms and conditions for the services.
+    #'
+    #' @return An HTML document containing the terms and conditions in a collapsible format.
+    #' @importFrom httr2 request req_method req_url_query
+    #' @importFrom htmltools tagList tags tagAppendChild HTML html_print
+    #'
+    get_tac = function()
+    {
+      url <- paste0(self$apiUrl, "/terms")
+      req <- httr2::request(url) %>%
+        httr2::req_method("GET") %>%
+        httr2::req_url_query(startIndex = 0, itemsPerPage = 50)
+
+      features <- self$send_request(req)$data$feature
+
+      # Start the accordion container
+      accordion <- htmltools::tags$div(class = "accordion", id = "accordionExample")
+
+      # Iterate through each feature and create a collapsible card
+      for (index in seq_along(features)) {
+        feature <- features[[index]]
+        card <- htmltools::tags$div(class = "card",
+                  htmltools::tags$div(class = "card-header", id = paste0("heading", index),
+                    htmltools::tags$h2(class = "mb-0",
+                      htmltools::tags$button(feature$title,
+                        class = "btn btn-link",
+                        type = "button",
+                        `data-toggle` = "collapse",
+                        `data-target` = paste0("#collapse", index),
+                        `aria-expanded` = "true",
+                        `aria-controls` = paste0("collapse", index),
+                        style="width: 100%; text-align: left; padding: 0; color: #007BFF; background-color: transparent; border: none;"
+                      )
+                    )
+                  ),
+                  htmltools::tags$div(id = paste0("collapse", index), class = "collapse", `aria-labelledby` = paste0("heading", index), `data-parent` = "#accordionExample",
+                    htmltools::tags$div(class = "card-body",
+                      htmltools::tags$h4(paste("Term ID:", feature$term_id), style = "color: #6c757d;"),
+                      htmltools::HTML(feature$abstract)
+                    )
+                  )
+        )
+        # Add the card to the accordion
+        accordion <- htmltools::tagAppendChild(accordion, card)
+      }
+
+      # Wrap in a container that includes Bootstrap CSS and JavaScript
+      full_html <- htmltools::tagList(
+        htmltools::tags$head(htmltools::tags$link(rel = "stylesheet", href = "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css")),
+        htmltools::tags$body(
+          accordion,
+          htmltools::tags$script(src = "https://code.jquery.com/jquery-3.3.1.slim.min.js"),
+          htmltools::tags$script(src = "https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"),
+          htmltools::tags$script(src = "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js")
+        )
+      )
+      html_file_path <- tempfile(fileext = ".html")
+      htmltools::save_html(full_html, file = html_file_path)
+      browseURL(html_file_path)
+#      htmltools::html_print(full_html)
+    },
 
     #' Accept Terms and Conditions
     #'
@@ -141,7 +204,6 @@ Client <- R6::R6Class("Client",
 
       resp <- self$send_request(req)$data
     },
-
 
     #' List datasets on WEkEO
     #'
