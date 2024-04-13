@@ -8,6 +8,9 @@ Client Class
 
 Client Class
 }
+\seealso{
+\code{\link{show_terms}} to read the Terms and conditions.
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -15,7 +18,8 @@ Client Class
 \item \href{#method-Client-token}{\code{Client$token()}}
 \item \href{#method-Client-get_token}{\code{Client$get_token()}}
 \item \href{#method-Client-send_request}{\code{Client$send_request()}}
-\item \href{#method-Client-accept_tac}{\code{Client$accept_tac()}}
+\item \href{#method-Client-show_terms}{\code{Client$show_terms()}}
+\item \href{#method-Client-accept_terms}{\code{Client$accept_terms()}}
 \item \href{#method-Client-datasets}{\code{Client$datasets()}}
 \item \href{#method-Client-search}{\code{Client$search()}}
 \item \href{#method-Client-get_querytemplate}{\code{Client$get_querytemplate()}}
@@ -102,21 +106,42 @@ This function sends a specified request to a service.
 \subsection{Returns}{
 A response object or list containing the result of the sent request.
 
-Accept Terms and Conditions
+Show Terms and Conditions
 
-This function indicates the acceptance of terms and conditions for a service.
+This function displays the terms and conditions for the services.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Client-accept_tac"></a>}}
-\if{latex}{\out{\hypertarget{method-Client-accept_tac}{}}}
-\subsection{Method \code{accept_tac()}}{
+\if{html}{\out{<a id="method-Client-show_terms"></a>}}
+\if{latex}{\out{\hypertarget{method-Client-show_terms}{}}}
+\subsection{Method \code{show_terms()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Client$accept_tac()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Client$show_terms()}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
-none.
+An HTML document containing the terms and conditions in a collapsible format.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Client-accept_terms"></a>}}
+\if{latex}{\out{\hypertarget{method-Client-accept_terms}{}}}
+\subsection{Method \code{accept_terms()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Client$accept_terms(term_id)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{term_id}}{A character vector of term_ids that you wish to accept.
+If missing current status is returned.
+Use "\strong{accept_all}" if you want to accept all terms at once.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A data frame reflecting the actual acceptance status for each term.
 }
 }
 \if{html}{\out{<hr>}}

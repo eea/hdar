@@ -126,22 +126,28 @@ Client <- R6::R6Class("Client",
       stop(httr2::resp_body_json(resp)$detail)
     },
 
-    #' Get Terms and Conditions
+
+    #' Show Terms and Conditions
     #'
-    #' This function gets the terms and conditions for the services.
+    #' This function displays the terms and conditions for the services.
     #'
     #' @return An HTML document containing the terms and conditions in a collapsible format.
     #' @importFrom httr2 request req_method req_url_query
     #' @importFrom htmltools tagList tags tagAppendChild HTML html_print
     #'
-    get_tac = function()
+    show_terms = function()
     {
       url <- paste0(self$apiUrl, "/terms")
       req <- httr2::request(url) %>%
         httr2::req_method("GET") %>%
         httr2::req_url_query(startIndex = 0, itemsPerPage = 50)
 
-      features <- self$send_request(req)$data$feature
+      features <- self$send_request(req)$data$features
+
+      term_id <- sapply(features, function(x){x$term_id})
+      dupl <- duplicated(term_id)
+
+      features <- features[!dupl]
 
       # Start the accordion container
       accordion <- htmltools::tags$div(class = "accordion", id = "accordionExample")
@@ -152,15 +158,15 @@ Client <- R6::R6Class("Client",
         card <- htmltools::tags$div(class = "card",
                   htmltools::tags$div(class = "card-header", id = paste0("heading", index),
                     htmltools::tags$h2(class = "mb-0",
-                      htmltools::tags$button(feature$title,
-                        class = "btn btn-link",
-                        type = "button",
-                        `data-toggle` = "collapse",
-                        `data-target` = paste0("#collapse", index),
-                        `aria-expanded` = "true",
-                        `aria-controls` = paste0("collapse", index),
-                        style="width: 100%; text-align: left; padding: 0; color: #007BFF; background-color: transparent; border: none;"
-                      )
+                       htmltools::tags$button(feature$title,
+                                              class = "btn btn-link",
+                                              type = "button",
+                                              `data-toggle` = "collapse",
+                                              `data-target` = paste0("#collapse", index),
+                                              `aria-expanded` = "true",
+                                              `aria-controls` = paste0("collapse", index),
+                                              style="width: 100%; text-align: left; padding: 0; color: #007BFF; background-color: transparent; border: none;"
+                       )
                     )
                   ),
                   htmltools::tags$div(id = paste0("collapse", index), class = "collapse", `aria-labelledby` = paste0("heading", index), `data-parent` = "#accordionExample",
@@ -184,25 +190,59 @@ Client <- R6::R6Class("Client",
           htmltools::tags$script(src = "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js")
         )
       )
+
       html_file_path <- tempfile(fileext = ".html")
       htmltools::save_html(full_html, file = html_file_path)
       browseURL(html_file_path)
     },
 
+
     #' Accept Terms and Conditions
     #'
-    #' This function indicates the acceptance of terms and conditions for a service.
+    #' Function to retrieve and accept terms and conditions. Accepting T&C is permanent,
+    #' it is enough to run this function one.
+    #' To read T&C see \code{\link{show_terms}}.
     #'
-    #' @return none.
+    #' @param term_id A character vector of term_ids that you wish to accept.
+    #'                If missing current status is returned.
+    #'                Use "\strong{accept_all}" if you want to accept all terms at once.
+    #' @return A data frame reflecting the actual acceptance status for each term.
+    #' @seealso \code{\link{show_terms}} to read the Terms and conditions.
     #' @importFrom httr2 request req_method
     #'
-    accept_tac = function()
+    accept_terms = function(term_id)
     {
-      url <- paste0(self$apiUrl, "/termsaccepted/Copernicus_General_License")
-      req <- httr2::request(url) %>% httr2::req_method("PUT")
+      terms <- private$get_terms_status()
 
-      resp <- self$send_request(req)$data
+      if(missing(term_id)) {
+        return(terms)
+      }
+
+      if(tolower(term_id[1]) == "accept_all")
+      {
+        term_id <- terms
+      }
+
+      invalid_term_ids <- term_id[!term_id %in% terms$term_id]
+
+      if (length(invalid_term_ids) > 0)
+      {
+        stop("Invalid term_id detected: ", paste(invalid_term_ids, collapse = ",\n"))
+      }
+
+      for (i in seq_along(term_id))
+      {
+        url <- paste0(self$apiUrl, "/termsaccepted/", term_id[i])
+        req <- httr2::request(url) %>% httr2::req_method("PUT")
+        resp <- self$send_request(req)$data
+
+        stopifnot(resp$accepted)
+      }
+      tacs <- private$get_terms_status()
+      tacs$title <- NULL
+      return(tacs)
     },
+
 
     #' List datasets on WEkEO
     #'
@@ -417,7 +457,57 @@ Client <- R6::R6Class("Client",
       {
         obj
       }
+    },
+
+    get_termsAccepted = function()
+    {
+      url <- paste0(self$apiUrl, "/termsaccepted")
+      req <- httr2::request(url) %>%
+        httr2::req_method("GET") %>%
+        httr2::req_url_query(startIndex = 0, itemsPerPage = 50)
+      features <- self$send_request(req)$data$features
+
+      df <- do.call(rbind, lapply(features, function(x) data.frame(t(unlist(x)), stringsAsFactors = FALSE)))
+      return(df)
+    },
+
+    get_terms_status = function()
+    {
+      url <- paste0(self$apiUrl, "/terms")
+      req <- httr2::request(url) %>%
+        httr2::req_method("GET") %>%
+        httr2::req_url_query(startIndex = 0, itemsPerPage = 50)
+      terms <- self$send_request(req)$data$features
+
+      # Convert the list of lists into a data frame, excluding the 'abstract'
+      df <- do.call(rbind, lapply(terms, function(x) {
+        x$abstract <- NULL # Remove the abstract element
+        data.frame(t(unlist(x)), stringsAsFactors = FALSE)
+      }))
+
+      url <- paste0(self$apiUrl, "/termsaccepted")
+      req <- httr2::request(url) %>%
+        httr2::req_method("GET") %>%
+        httr2::req_url_query(startIndex = 0, itemsPerPage = 50)
+      accepted <- self$send_request(req)$data$features
+
+      # Convert the list of lists into a data frame, excluding the 'abstract'
+      accepted <- do.call(rbind, lapply(accepted, function(x) {
+        data.frame(t(unlist(x)), stringsAsFactors = FALSE)
+      }))
+
+      df$accepted <- df$term_id %in% accepted$term_id
+
+      # remove duplicates
+      dupl <- duplicated(df$term_id)
+      df <- df[!dupl,]
+
+      # remove title as its more confusing than helpful
+      df$title <- NULL
+      rownames(df) <- NULL
+      df
     }
+
   )
 )
 
