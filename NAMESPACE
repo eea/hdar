@@ -2,6 +2,11 @@
 
 export(Client)
 importFrom(R6,R6Class)
+importFrom(htmltools,HTML)
+importFrom(htmltools,html_print)
+importFrom(htmltools,tagAppendChild)
+importFrom(htmltools,tagList)
+importFrom(htmltools,tags)
 importFrom(httr2,req_body_json)
 importFrom(httr2,req_method)
 importFrom(httr2,req_url_query)
