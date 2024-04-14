@@ -459,18 +459,6 @@ Client <- R6::R6Class("Client",
       }
     },
 
-    get_termsAccepted = function()
-    {
-      url <- paste0(self$apiUrl, "/termsaccepted")
-      req <- httr2::request(url) %>%
-        httr2::req_method("GET") %>%
-        httr2::req_url_query(startIndex = 0, itemsPerPage = 50)
-      features <- self$send_request(req)$data$features
-
-      df <- do.call(rbind, lapply(features, function(x) data.frame(t(unlist(x)), stringsAsFactors = FALSE)))
-      return(df)
-    },
-
     get_terms_status = function()
     {
       url <- paste0(self$apiUrl, "/terms")
