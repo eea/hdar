@@ -206,8 +206,8 @@ Client <- R6::R6Class("Client",
     #' @param term_id A character vector of term_ids that you wish to accept.
     #'                If missing current status is returned.
     #'                Use "\strong{all}" if you want to accept all terms at once.
-    #' @param reject  Logical, default 'FALSE'. If TRUE is inverts the operation and
-    #'                provided term_ids are rejected/revoked.
+    #' @param reject  Logical, default 'FALSE'. If TRUE it inverts the operation and
+    #'                the provided term_id's are rejected/revoked.
     #' @return A data frame reflecting the actual acceptance status for each term.
     #' @seealso \code{\link{show_terms}} to read the Terms and conditions.
     #' @importFrom httr2 request req_method
