@@ -19,7 +19,7 @@ Client Class
 \item \href{#method-Client-get_token}{\code{Client$get_token()}}
 \item \href{#method-Client-send_request}{\code{Client$send_request()}}
 \item \href{#method-Client-show_terms}{\code{Client$show_terms()}}
-\item \href{#method-Client-accept_terms}{\code{Client$accept_terms()}}
+\item \href{#method-Client-terms_and_conditions}{\code{Client$terms_and_conditions()}}
 \item \href{#method-Client-datasets}{\code{Client$datasets()}}
 \item \href{#method-Client-search}{\code{Client$search()}}
 \item \href{#method-Client-get_querytemplate}{\code{Client$get_querytemplate()}}
@@ -124,11 +124,11 @@ An HTML document containing the terms and conditions in a collapsible format.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Client-accept_terms"></a>}}
-\if{latex}{\out{\hypertarget{method-Client-accept_terms}{}}}
-\subsection{Method \code{accept_terms()}}{
+\if{html}{\out{<a id="method-Client-terms_and_conditions"></a>}}
+\if{latex}{\out{\hypertarget{method-Client-terms_and_conditions}{}}}
+\subsection{Method \code{terms_and_conditions()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Client$accept_terms(term_id)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Client$terms_and_conditions(term_id, reject = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -136,7 +136,10 @@ An HTML document containing the terms and conditions in a collapsible format.
 \describe{
 \item{\code{term_id}}{A character vector of term_ids that you wish to accept.
 If missing current status is returned.
-Use "\strong{accept_all}" if you want to accept all terms at once.}
+Use "\strong{all}" if you want to accept all terms at once.}
+
+\item{\code{reject}}{Logical, default 'FALSE'. If TRUE is inverts the operation and
+provided term_ids are rejected/revoked.}
 }
 \if{html}{\out{</div>}}
 }

@@ -205,38 +205,49 @@ Client <- R6::R6Class("Client",
     #'
     #' @param term_id A character vector of term_ids that you wish to accept.
     #'                If missing current status is returned.
-    #'                Use "\strong{accept_all}" if you want to accept all terms at once.
+    #'                Use "\strong{all}" if you want to accept all terms at once.
+    #' @param reject  Logical, default 'FALSE'. If TRUE is inverts the operation and
+    #'                provided term_ids are rejected/revoked.
     #' @return A data frame reflecting the actual acceptance status for each term.
     #' @seealso \code{\link{show_terms}} to read the Terms and conditions.
     #' @importFrom httr2 request req_method
     #'
-    accept_terms = function(term_id)
+    terms_and_conditions = function(term_id, reject=FALSE)
     {
       terms <- private$get_terms_status()
 
-      if(missing(term_id)) {
+      if(missing(term_id))
+      {
         return(terms)
       }
 
-      if(tolower(term_id[1]) == "accept_all")
+      if(tolower(term_id[1]) == "all")
       {
-        term_id <- terms
+        term_id <- terms$term_id
       }
 
       invalid_term_ids <- term_id[!term_id %in% terms$term_id]
 
       if (length(invalid_term_ids) > 0)
       {
-        stop("Invalid term_id detected: ", paste(invalid_term_ids, collapse = ",\n"))
+        stop("Invalid term_id detected: ", paste0(invalid_term_ids, collapse = ",\n"))
+      }
+
+      if(reject)
+      {
+        action <- "DELETE"
+      } else
+      {
+        action <- "PUT"
       }
 
       for (i in seq_along(term_id))
       {
         url <- paste0(self$apiUrl, "/termsaccepted/", term_id[i])
-        req <- httr2::request(url) %>% httr2::req_method("PUT")
+        req <- httr2::request(url) %>% httr2::req_method(action)
         resp <- self$send_request(req)$data
 
-        stopifnot(resp$accepted)
+        stopifnot(resp$status_code == 200)
       }
       tacs <- private$get_terms_status()
       tacs$title <- NULL
