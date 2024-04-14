@@ -138,8 +138,8 @@ An HTML document containing the terms and conditions in a collapsible format.
 If missing current status is returned.
 Use "\strong{all}" if you want to accept all terms at once.}
 
-\item{\code{reject}}{Logical, default 'FALSE'. If TRUE is inverts the operation and
-provided term_ids are rejected/revoked.}
+\item{\code{reject}}{Logical, default 'FALSE'. If TRUE it inverts the operation and
+the provided term_id's are rejected/revoked.}
 }
 \if{html}{\out{</div>}}
 }
