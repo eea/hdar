@@ -214,11 +214,17 @@ Client <- R6::R6Class("Client",
     #'
     terms_and_conditions = function(term_id, reject=FALSE)
     {
+
       terms <- private$get_terms_status()
 
       if(missing(term_id))
       {
         return(terms)
+      }
+
+      if (!is.logical(reject))
+      {
+        stop("'reject' must be a logical value (TRUE or FALSE)")
       }
 
       if(tolower(term_id[1]) == "all")
@@ -230,7 +236,7 @@ Client <- R6::R6Class("Client",
 
       if (length(invalid_term_ids) > 0)
       {
-        stop("Invalid term_id detected: ", paste0(invalid_term_ids, collapse = ",\n"))
+        stop("Invalid term_id detected:\n", paste0("\t- ",invalid_term_ids, collapse = "\n"))
       }
 
       if(reject)
@@ -269,13 +275,11 @@ Client <- R6::R6Class("Client",
     datasets = function(pattern = NULL)
     {
       url <- paste0(self$apiUrl, "/datasets")
-      #url <- "https://gateway.prod.wekeo2.eu/hda-broker/api/v1/datasets" ; library(magrittr) ; pattern='VPP'
       req <- httr2::request(url) %>%
              httr2::req_method("GET") %>%
              httr2::req_url_query(q = pattern, startIndex = 0, itemsPerPage = 20000)
 
       resp <- self$send_request(req)$data
-      #resp <- client$send_request(req)$data
 
       datasets <- lapply(resp$features, function(x)
             {
@@ -355,6 +359,12 @@ Client <- R6::R6Class("Client",
     #'
     get_querytemplate = function(datasetId, to_json=FALSE)
     {
+
+      if (missing(datasetId))
+      {
+        stop("The 'datasetId' parameter is required and was not provided.")
+      }
+
       url <- paste0(self$apiUrl, "/dataaccess/queryable/", datasetId)
       req <- httr2::request(url) %>%
              httr2::req_method("GET")
