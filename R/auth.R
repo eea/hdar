@@ -44,6 +44,7 @@ Auth <- R6::R6Class("Auth",
                           'username' = private$user,
                           'password' = private$password
                         )
+
                         req <-  httr2::request(url) %>%
                           httr2::req_method("POST") %>%
                           httr2::req_body_json(params)

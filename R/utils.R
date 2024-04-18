@@ -24,7 +24,7 @@ extractTemplateParamArrayDefaultValue = function(meta) {
 
     if (exists('oneOf', meta$items) && length(meta$items$oneOf) > 0) {
       value <- meta$items$oneOf[[1]]$const
-      return(list(value))
+      return(I(list(list(value))))
     }
 
   }

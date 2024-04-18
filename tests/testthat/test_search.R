@@ -1,29 +1,9 @@
 library("testthat")
 library("hdar")
 
-# "datasetId": "EO:ESA:DAT:EODC-SENTINEL-2:MSI1C",
-# "datasetId": "EO:CRYO:DAT:HRSI:FSC",
-
 QUERY_CORRECT <- jsonlite::fromJSON('{
   "dataset_id": "EO:CRYO:DAT:HRSI:FSC",
-  "boundingBoxValues": [
-    {
-      "name": "bbox",
-      "bbox": [
-        10.40604182845371,
-        46.070752904760845,
-        10.62519817997369,
-        46.231832161109644
-        ]
-    }
-    ],
-  "dateRangeSelectValues": [
-    {
-      "name": "time",
-      "start": "2021-01-01T00:00:00.000Z",
-      "end": "2021-02-05T00:00:00.000Z"
-    }
-    ]
+  "observed_start": "2021-01-01T00:00:00.000Z"
 }')
 
 QUERY_FAILED <- jsonlite::fromJSON('{

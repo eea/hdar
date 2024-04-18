@@ -418,7 +418,6 @@ Client <- R6::R6Class("Client",
       {
         return("")
       }
-
       prop_value = gsub(regexp, "\\1", file[idx]) %>% trimws()
     },
 
@@ -445,7 +444,8 @@ Client <- R6::R6Class("Client",
     {
       obj <- {}
 
-      obj <- c(obj, setNames(list(dataset_id), "dataset_id"))
+      obj$dataset_id <- dataset_id
+
       data <- data$properties
 
       for (param in names(data))
@@ -463,17 +463,18 @@ Client <- R6::R6Class("Client",
             data[[param]][["items"]][[4]]$maximum
           )
           obj <- c(obj, setNames(list(extent), "bbox"))
+          obj$bbox <- list(extent)
           next
         }
 
         pValue <- extractTemplateParamDefaultValue(data[[param]])
         if (is.null(pValue)) next
 
-        obj <- c(obj, setNames(list(pValue), param))
+        obj <- c(obj, setNames(pValue, param))
       }
       if (to_json)
       {
-        jsonlite::toJSON(obj, pretty = TRUE, auto_unbox=TRUE)
+        jsonlite::toJSON(obj, pretty = TRUE, auto_unbox = TRUE)
       } else
       {
         obj

@@ -10,9 +10,5 @@ test_that("Template - Generate Query Template", {
   query_template <- client$generate_query_template("EO:CRYO:DAT:HRSI:FSC")
   print(query_template)
 
-#  query_template <- client$generate_query_template("EO:EEA:DAT:CLMS_HRVPP_VPP")
-#  cat("\n\n")
-#  print(query_template)
-
 })
 

@@ -30,7 +30,7 @@ Paginator <- R6::R6Class("Paginator",
             }
 
             if ((!is.null(limit) && length(results) >= limit) ||
-                length(results) >= resp$properties$totalResults) {
+                length(results) >= resp$properties$totalResults || length(results) == 0) {
               break
             }
 
@@ -41,7 +41,6 @@ Paginator <- R6::R6Class("Paginator",
             }
           }
 
-          print(paste("results.length = ", length(results)))
           results
         },
         error = function(err) {
@@ -68,7 +67,6 @@ Paginator <- R6::R6Class("Paginator",
         req <- req %>%
           httr2::req_url_query(!!!params)
       }
-
       private$client$send_request(req)$data
     }
 
