@@ -17,12 +17,13 @@ SearchResults <- R6::R6Class("SearchResults",
         dir.create(output_dir)
       }
 
-      print("[Download] Downloading...")
-
       resources_to_download <- self$results
       #resources_to_download <- if (missing(selected_indexes)) self$results else self$results[selected_indexes]
-
-      for(r in resources_to_download) {
+      i <- 1
+      for(r in resources_to_download)
+      {
+        print(paste0("[Download] Downloading file ",i,"/",length(resources_to_download)))
+        i <- i+1
         local_path <- paste0(output_dir, '/', r$id, '.zip')
         if(!file.exists(local_path)) {
           download_id <- private$get_download_id(r)
