@@ -1,15 +1,33 @@
+#' SearchResults Class
+#'
+#' This R6 class handles the storage and manipulation of search results including downloading resources based on a search query.
+#'
+#' @name SearchResults
+#' @importFrom R6 R6Class
+#' @export
 SearchResults <- R6::R6Class("SearchResults",
 
   public = list(
 
+    #' @field results Stores the search results data.
     results = NULL,
 
+    #' Constructor for SearchResults
+    #' @param client An object containing the API client used to interact with the dataset.
+    #' @param results List containing search results.
+    #' @param dataset_id The identifier for the dataset being queried.
+    #' @description Initializes a new SearchResults object with the specified client, results, and dataset identifier.
     initialize = function(client, results, dataset_id) {
       private$client <- client
       private$dataset_id <- dataset_id
       self$results <- results
     },
 
+    #' Download resources
+    #' @param output_dir A string specifying the directory where downloaded files will be saved, defaulting to the current directory.
+    #' @param selected_indexes Optional; indices of the specific results to download.
+    #' @description Downloads resources based on stored results or selected indices of results.
+    #' @return Nothing returned but downloaded files are saved at the specified location.
     download = function(output_dir = ".", selected_indexes) {
       print("[Download] Start")
 

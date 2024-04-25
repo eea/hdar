@@ -2,11 +2,22 @@
 % Please edit documentation in R/auth.R
 \name{Auth}
 \alias{Auth}
-\title{Auth Class Constructor}
+\title{Auth Class}
 \description{
+Auth Class
+
+Auth Class
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{apiUrl}}{The base URL for the API endpoint.
+This field holds the URL to the API that the client interacts with.
 Auth Class Constructor
 
-Auth Class Constructor
+This function initializes a new instance of the `Auth` class with the specified parameters.}
+}
+\if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -21,7 +32,6 @@ Auth Class Constructor
 \if{html}{\out{<a id="method-Auth-new"></a>}}
 \if{latex}{\out{\hypertarget{method-Auth-new}{}}}
 \subsection{Method \code{new()}}{
-This function initializes a new instance of the `Auth` class with the specified parameters.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Auth$new(user = NULL, password = NULL)}\if{html}{\out{</div>}}
 }

@@ -4,12 +4,34 @@
 \alias{Client}
 \title{Client Class}
 \description{
-Client Class
+Costam costam
+}
+\note{
+There are some inconsistencies between the return of `GET querymetadata` and what must be submitted to the HDA.
+Use \link{generate_query_template} to resolve these inconsistencies.
+Generate a Query Template
 
-Client Class
+This function generates a query template based on a specified datasetId.
 }
 \seealso{
 \code{\link{show_terms}} to read the Terms and conditions.
+
+\code{\link[=SearchResults]{SearchResults}} for details on the returned object.
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{apiUrl}}{The base URL for the API endpoint.
+This field holds the URL to the API that the client interacts with.}
+
+\item{\code{auth}}{Authentication object.
+This field is initially NULL and is meant to hold an authentication object after the user logs in.
+For more details, see the \link{Auth} class documentation.
+Initialize Client
+
+Constructor for the `Client` class. Initializes a new instance with authentication credentials.}
+}
+\if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -38,20 +60,19 @@ Client Class
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{user}}{character. String representing the username for authentication.}
+\item{\code{user}}{Character string representing the username for authentication.}
 
-\item{\code{password}}{character. String representing the password for authentication.}
+\item{\code{password}}{Character string representing the password for authentication.}
 
-\item{\code{overwrite}}{logical. `FALSE` indicating whether to overwrite or not existing credentials.}
+\item{\code{overwrite}}{Logical; `FALSE` by default. If `TRUE`, overwrites any existing credentials.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
 An instance of the `Client` class.
-
 Retrieve a Token
 
-This function retrieves a previously generated token.
+Retrieves the current authentication token.
 }
 }
 \if{html}{\out{<hr>}}
@@ -63,11 +84,10 @@ This function retrieves a previously generated token.
 }
 
 \subsection{Returns}{
-A character string representing the retrieved token.
-
+Character string representing the authentication token.
 Generate a Token
 
-This function generates a unique token for authentication or other purposes.
+Generates a new authentication token.
 }
 }
 \if{html}{\out{<hr>}}
@@ -79,11 +99,10 @@ This function generates a unique token for authentication or other purposes.
 }
 
 \subsection{Returns}{
-A character string representing the generated token.
-
+Character string representing the newly generated token.
 Send a Request
 
-This function sends a specified request to a service.
+Sends a specified request to the server and returns the response.
 }
 }
 \if{html}{\out{<hr>}}
@@ -97,15 +116,14 @@ This function sends a specified request to a service.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{req}}{A list or object representing the request to be sent.}
+\item{\code{req}}{A request object or list representing the HTTP request.}
 
-\item{\code{path}}{An optional parameter specifying the path where the response should be save at.}
+\item{\code{path}}{Optional character string specifying the local path where the response should be saved.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A response object or list containing the result of the sent request.
-
+A response object containing the server's response.
 Show Terms and Conditions
 
 This function displays the terms and conditions for the services.
@@ -158,12 +176,12 @@ A data frame reflecting the actual acceptance status for each term.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{pattern}}{character. A string to filter dataset names by matching text. If NULL (default), it lists all datasets. This isn't a regex search, but a simple text match.}
+\item{\code{pattern}}{Optional character string to filter dataset names by matching text.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-list. Containing datasets and associated information.
+List containing datasets and associated information.
 }
 }
 \if{html}{\out{<hr>}}
@@ -177,12 +195,14 @@ list. Containing datasets and associated information.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{query}}{Character. String representing the search query.}
+\item{\code{query}}{Character string representing the search query.}
+
+\item{\code{limit}}{Optional; a number specifying the maximum number of results to return.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A list or data frame containing the search results.
+An instance of the \code{\link{SearchResults}} class containing the search results.
 }
 }
 \if{html}{\out{<hr>}}
@@ -196,14 +216,14 @@ A list or data frame containing the search results.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{datasetId}}{character. 'datasetId' of the specific dataset.}
+\item{\code{datasetId}}{Character, representing the dataset's identifier.}
 
-\item{\code{to_json}}{logical. If `FALSE` return list, otherwise `toJSON(resp, pretty = TRUE, auto_unbox=TRUE)`}
+\item{\code{to_json}}{Logical; if `TRUE`, returns the data in JSON format.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-list or json file containing the raw query options.
+List or JSON file containing the raw query options.
 }
 }
 \if{html}{\out{<hr>}}

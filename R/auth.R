@@ -1,7 +1,12 @@
-# @export Auth
+#' Auth Class
+#' @importFrom R6 R6Class
+#' @importFrom magrittr %>%
+#' @export
 Auth <- R6::R6Class("Auth",
                     public = list(
 
+                      #' @field apiUrl The base URL for the API endpoint.
+                      #' This field holds the URL to the API that the client interacts with.
                       apiUrl = 'https://gateway.prod.wekeo2.eu/hda-broker',
 
                       #' Auth Class Constructor
@@ -44,7 +49,6 @@ Auth <- R6::R6Class("Auth",
                           'username' = private$user,
                           'password' = private$password
                         )
-
                         req <-  httr2::request(url) %>%
                           httr2::req_method("POST") %>%
                           httr2::req_body_json(params)

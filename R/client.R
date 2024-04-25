@@ -1,24 +1,28 @@
 #' Client Class
-#' @export Client
-#' @importFrom R6 R6Class
-#' @importFrom magrittr %>%
+#'
+#' Costam costam
+#' @export
 Client <- R6::R6Class("Client",
 
   public = list(
 
+    #' @field apiUrl The base URL for the API endpoint.
+    #' This field holds the URL to the API that the client interacts with.
     apiUrl = 'https://gateway.prod.wekeo2.eu/hda-broker/api/v1',
+
+    #' @field auth Authentication object.
+    #' This field is initially NULL and is meant to hold an authentication object after the user logs in.
+    #' For more details, see the \link{Auth} class documentation.
     auth = NULL,
 
-    #' Client Class Constructor
+    #' Initialize Client
     #'
-    #' This function initializes a new instance of the `Client` class with the specified parameters.
+    #' Constructor for the `Client` class. Initializes a new instance with authentication credentials.
     #'
-    #' @param user character. String representing the username for authentication.
-    #' @param password character. String representing the password for authentication.
-    #' @param overwrite logical. `FALSE` indicating whether to overwrite or not existing credentials.
-    #'
+    #' @param user Character string representing the username for authentication.
+    #' @param password Character string representing the password for authentication.
+    #' @param overwrite Logical; `FALSE` by default. If `TRUE`, overwrites any existing credentials.
     #' @return An instance of the `Client` class.
-    #'
     initialize = function(user, password, overwrite = FALSE)
     {
       #self$apiUrl <- 'https://gateway.prod.wekeo2.eu/hda-broker/api/v1'
@@ -45,10 +49,9 @@ Client <- R6::R6Class("Client",
 
     #' Retrieve a Token
     #'
-    #' This function retrieves a previously generated token.
+    #' Retrieves the current authentication token.
     #'
-    #' @return A character string representing the retrieved token.
-    #'
+    #' @return Character string representing the authentication token.
     token = function()
     {
       self$auth$token()
@@ -57,10 +60,9 @@ Client <- R6::R6Class("Client",
 
     #' Generate a Token
     #'
-    #' This function generates a unique token for authentication or other purposes.
+    #' Generates a new authentication token.
     #'
-    #' @return A character string representing the generated token.
-    #'
+    #' @return Character string representing the newly generated token.
     get_token = function()
     {
       self$auth$get_token()
@@ -69,13 +71,11 @@ Client <- R6::R6Class("Client",
 
     #' Send a Request
     #'
-    #' This function sends a specified request to a service.
+    #' Sends a specified request to the server and returns the response.
     #'
-    #' @param req A list or object representing the request to be sent.
-    #' @param path An optional parameter specifying the path where the response should be save at.
-    #'
-    #' @return A response object or list containing the result of the sent request.
-    #'
+    #' @param req A request object or list representing the HTTP request.
+    #' @param path Optional character string specifying the local path where the response should be saved.
+    #' @return A response object containing the server's response.
     send_request = function(req, path = NULL)
     {
       if (is.null(self$auth$token()))
@@ -211,7 +211,6 @@ Client <- R6::R6Class("Client",
     #' @return A data frame reflecting the actual acceptance status for each term.
     #' @seealso \code{\link{show_terms}} to read the Terms and conditions.
     #' @importFrom httr2 request req_method
-    #'
     terms_and_conditions = function(term_id, reject=FALSE)
     {
 
@@ -263,15 +262,11 @@ Client <- R6::R6Class("Client",
 
     #' List datasets on WEkEO
     #'
-    #' This function lists datasets that can be accessed on WEkEO. You can also
-    #' narrow your search by means of a pattern.
+    #' Lists datasets available on WEkEO, optionally filtered by a text pattern.
     #'
-    #' @param pattern character. A string to filter dataset names by matching text. If NULL (default), it lists all datasets. This isn't a regex search, but a simple text match.
-    #'
-    #' @return list. Containing datasets and associated information.
-    #'
+    #' @param pattern Optional character string to filter dataset names by matching text.
+    #' @return List containing datasets and associated information.
     #' @importFrom httr2 request req_method req_url_query
-    #'
     datasets = function(pattern = NULL)
     {
       url <- paste0(self$apiUrl, "/datasets")
@@ -316,12 +311,13 @@ Client <- R6::R6Class("Client",
 
     #' Search function
     #'
-    #' This function performs a search based on a specified query.
+    #' This function performs a search based on a specified query and returns an instance of \code{\link{SearchResults}}.
     #'
-    #' @param query Character. String representing the search query.
-    #' @return A list or data frame containing the search results.
+    #' @param query Character string representing the search query.
+    #' @param limit Optional; a number specifying the maximum number of results to return.
+    #' @return An instance of the \code{\link{SearchResults}} class containing the search results.
+    #' @seealso \code{\link[=SearchResults]{SearchResults}} for details on the returned object.
     #' @importFrom httr2 request req_method req_body_json
-
     search = function(query, limit = NULL)
     {
 
@@ -345,18 +341,17 @@ Client <- R6::R6Class("Client",
     },
 
 
-    #' Retrieve Raw query template
+    #' Retrieve Raw Query Template
     #'
-    #' This function performs `GET:querymetadata` for a specified datasetId.
+    #' Retrieves the raw query metadata for a specified datasetId.
     #'
-    #' @param datasetId character. 'datasetId' of the specific dataset.
-    #' @param to_json logical. If `FALSE` return list, otherwise `toJSON(resp, pretty = TRUE, auto_unbox=TRUE)`
-    #' @return list or json file containing the raw query options.
+    #' @param datasetId Character, representing the dataset's identifier.
+    #' @param to_json Logical; if `TRUE`, returns the data in JSON format.
+    #' @return List or JSON file containing the raw query options.
     #' @importFrom httr2 request req_method
     #' @importFrom jsonlite toJSON
-
-    # @note There are some inconsistencies between the return of `GET querymetadata` and what must be submitted to the HDA. Use `generate_query_template` to resolve these inconsistencies.
-    #'
+    #' @note There are some inconsistencies between the return of `GET querymetadata` and what must be submitted to the HDA.
+    #' Use \link{generate_query_template} to resolve these inconsistencies.
     get_querytemplate = function(datasetId, to_json=FALSE)
     {
 
@@ -462,14 +457,18 @@ Client <- R6::R6Class("Client",
             data[[param]][["items"]][[3]]$maximum,
             data[[param]][["items"]][[4]]$maximum
           )
-          obj <- c(obj, setNames(list(extent), "bbox"))
-          obj$bbox <- list(extent)
+          #obj <- c(obj, setNames(list(extent), "bbox"))
+          #obj$bbox <- list(extent)
           next
         }
 
         pValue <- extractTemplateParamDefaultValue(data[[param]])
-        if (is.null(pValue)) next
-
+        if (is.null(pValue)) {
+          switch(param,
+            'itemsPerPage' = {pValue = 11},
+            'startIndex' = {pValue = 0},
+            next)
+        }
         obj <- c(obj, setNames(pValue, param))
       }
       if (to_json)
