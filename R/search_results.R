@@ -42,7 +42,15 @@ SearchResults <- R6::R6Class("SearchResults",
       {
         print(paste0("[Download] Downloading file ",i,"/",length(resources_to_download)))
         i <- i+1
-        local_path <- paste0(output_dir, '/', r$id, '.zip')
+
+        # try to fetch the file extension form $location, assume zip if NULL
+        fex <- private$get_file_extention(r$properties$location)
+        if (is.null(fex))
+        {
+          fex <- '.zip'
+        }
+
+        local_path <- paste0(output_dir, '/', r$id, fex)
         if(!file.exists(local_path)) {
           download_id <- private$get_download_id(r)
           is_ready <- private$ensure_download_is_ready(download_id)
@@ -54,7 +62,6 @@ SearchResults <- R6::R6Class("SearchResults",
       }
       print("[Download] DONE")
     }
-
   ),
 
   private = list(
@@ -96,6 +103,25 @@ SearchResults <- R6::R6Class("SearchResults",
       resp$download_id
     },
 
+    get_file_extention = function(filename)
+    {
+      filename <- basename(filename)
+      # Check if the file contains a dot and is not a hidden file without an extension
+      if (grepl("\\.", filename) && !grepl("^\\.", filename))
+      {
+        ext <- sub(".*\\.([a-zA-Z0-9]{1,4})$", "\\1", filename)
+        if (nchar(ext) >= 1 && nchar(ext) <= 4)
+        {
+          return(paste0('.',ext))
+        } else
+        {
+          return(NULL)
+        }
+      } else
+      {
+        return(NULL)
+      }
+    },
 
   download_resource = function(download_id, local_path) {
 
