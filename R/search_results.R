@@ -37,28 +37,34 @@ SearchResults <- R6::R6Class("SearchResults",
 
       resources_to_download <- self$results
       #resources_to_download <- if (missing(selected_indexes)) self$results else self$results[selected_indexes]
-      i <- 1
+      i <- 0
       for(r in resources_to_download)
       {
-        print(paste0("[Download] Downloading file ",i,"/",length(resources_to_download)))
         i <- i+1
+        print(paste0("[Download] Downloading file ",i,"/",length(resources_to_download)))
 
         # try to fetch the file extension form $location, assume zip if NULL
         fex <- private$get_file_extention(r$properties$location)
-        if (is.null(fex))
+        if(is.null(fex))
         {
+          if(i==1)
+          {
+            warning("No file extensions could be detected, assuming it is a 'zip'")
+          }
           fex <- '.zip'
         }
 
         local_path <- paste0(output_dir, '/', r$id, fex)
-        if(!file.exists(local_path)) {
+
+        if(!file.exists(local_path))
+        {
           download_id <- private$get_download_id(r)
           is_ready <- private$ensure_download_is_ready(download_id)
-          if (is_ready) {
+          if (is_ready)
+          {
             private$download_resource(download_id, local_path)
           }
         }
-
       }
       print("[Download] DONE")
     }
