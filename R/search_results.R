@@ -119,7 +119,7 @@ SearchResults <- R6::R6Class("SearchResults",
       # Check if the file contains a dot and is not a hidden file without an extension
       if (grepl("\\.", filename) && !grepl("^\\.", filename))
       {
-        ext <- sub(".*\\.([a-zA-Z0-9]{1,4})$", "\\1", filename)
+        ext <- sub(".*\\.([a-zA-Z]{1,4})$", "\\1", filename) # [a-zA-Z0-9]{1,4}
         if (nchar(ext) >= 1 && nchar(ext) <= 4)
         {
           return(paste0('.',ext))
