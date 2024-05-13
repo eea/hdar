@@ -4,34 +4,17 @@
 \alias{Client}
 \title{Client Class}
 \description{
-Costam costam
+The Client is the central gateway for interfacing with the HDA Service.
+It provides a comprehensive suite of methods to perform operations and retrieve data from the service efficiently.
 }
 \note{
 There are some inconsistencies between the return of `GET querymetadata` and what must be submitted to the HDA.
 Use \link{generate_query_template} to resolve these inconsistencies.
-Generate a Query Template
-
-This function generates a query template based on a specified datasetId.
 }
 \seealso{
-\code{\link{show_terms}} to read the Terms and conditions.
+\code{\link{Client$show_terms}} to read the Terms and conditions.
 
 \code{\link[=SearchResults]{SearchResults}} for details on the returned object.
-}
-\section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{apiUrl}}{The base URL for the API endpoint.
-This field holds the URL to the API that the client interacts with.}
-
-\item{\code{auth}}{Authentication object.
-This field is initially NULL and is meant to hold an authentication object after the user logs in.
-For more details, see the \link{Auth} class documentation.
-Initialize Client
-
-Constructor for the `Client` class. Initializes a new instance with authentication credentials.}
-}
-\if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -53,6 +36,7 @@ Constructor for the `Client` class. Initializes a new instance with authenticati
 \if{html}{\out{<a id="method-Client-new"></a>}}
 \if{latex}{\out{\hypertarget{method-Client-new}{}}}
 \subsection{Method \code{new()}}{
+Constructor for the `Client` class. Initializes a new instance with authentication credentials.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Client$new(user, password, overwrite = FALSE)}\if{html}{\out{</div>}}
 }
@@ -70,45 +54,39 @@ Constructor for the `Client` class. Initializes a new instance with authenticati
 }
 \subsection{Returns}{
 An instance of the `Client` class.
-Retrieve a Token
-
-Retrieves the current authentication token.
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Client-token"></a>}}
 \if{latex}{\out{\hypertarget{method-Client-token}{}}}
 \subsection{Method \code{token()}}{
+Retrieves the current authentication token.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Client$token()}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
 Character string representing the authentication token.
-Generate a Token
-
-Generates a new authentication token.
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Client-get_token"></a>}}
 \if{latex}{\out{\hypertarget{method-Client-get_token}{}}}
 \subsection{Method \code{get_token()}}{
+Generates a new authentication token.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Client$get_token()}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
 Character string representing the newly generated token.
-Send a Request
-
-Sends a specified request to the server and returns the response.
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Client-send_request"></a>}}
 \if{latex}{\out{\hypertarget{method-Client-send_request}{}}}
 \subsection{Method \code{send_request()}}{
+Sends a specified request to the server and returns the response.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Client$send_request(req, path = NULL)}\if{html}{\out{</div>}}
 }
@@ -124,15 +102,13 @@ Sends a specified request to the server and returns the response.
 }
 \subsection{Returns}{
 A response object containing the server's response.
-Show Terms and Conditions
-
-This function displays the terms and conditions for the services.
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Client-show_terms"></a>}}
 \if{latex}{\out{\hypertarget{method-Client-show_terms}{}}}
 \subsection{Method \code{show_terms()}}{
+This function displays the terms and conditions for the services.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Client$show_terms()}\if{html}{\out{</div>}}
 }
@@ -145,6 +121,9 @@ An HTML document containing the terms and conditions in a collapsible format.
 \if{html}{\out{<a id="method-Client-terms_and_conditions"></a>}}
 \if{latex}{\out{\hypertarget{method-Client-terms_and_conditions}{}}}
 \subsection{Method \code{terms_and_conditions()}}{
+Function to retrieve and accept terms and conditions. Accepting T&C is permanent,
+it is enough to run this function one.
+To read T&C see \code{\link{Client$show_terms}}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Client$terms_and_conditions(term_id, reject = FALSE)}\if{html}{\out{</div>}}
 }
@@ -169,6 +148,7 @@ A data frame reflecting the actual acceptance status for each term.
 \if{html}{\out{<a id="method-Client-datasets"></a>}}
 \if{latex}{\out{\hypertarget{method-Client-datasets}{}}}
 \subsection{Method \code{datasets()}}{
+Lists datasets available on WEkEO, optionally filtered by a text pattern.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Client$datasets(pattern = NULL)}\if{html}{\out{</div>}}
 }
@@ -188,6 +168,7 @@ List containing datasets and associated information.
 \if{html}{\out{<a id="method-Client-search"></a>}}
 \if{latex}{\out{\hypertarget{method-Client-search}{}}}
 \subsection{Method \code{search()}}{
+This function performs a search based on a specified query and returns an instance of \code{\link{SearchResults}}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Client$search(query, limit = NULL)}\if{html}{\out{</div>}}
 }
@@ -209,6 +190,7 @@ An instance of the \code{\link{SearchResults}} class containing the search resul
 \if{html}{\out{<a id="method-Client-get_querytemplate"></a>}}
 \if{latex}{\out{\hypertarget{method-Client-get_querytemplate}{}}}
 \subsection{Method \code{get_querytemplate()}}{
+Retrieves the raw query metadata for a specified datasetId.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Client$get_querytemplate(datasetId, to_json = FALSE)}\if{html}{\out{</div>}}
 }
@@ -230,6 +212,7 @@ List or JSON file containing the raw query options.
 \if{html}{\out{<a id="method-Client-generate_query_template"></a>}}
 \if{latex}{\out{\hypertarget{method-Client-generate_query_template}{}}}
 \subsection{Method \code{generate_query_template()}}{
+This function generates a query template based on a specified datasetId.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Client$generate_query_template(datasetId)}\if{html}{\out{</div>}}
 }

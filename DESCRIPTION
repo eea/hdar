@@ -14,7 +14,8 @@ Imports:
   httr2,
   jsonlite,
   magrittr,
-  htmltools
+  htmltools,
+  urltools
 Depends: 
     R (>= 2.10),
 Additional_repositories: https://github.com/eea/hdar

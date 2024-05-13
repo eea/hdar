@@ -6,6 +6,23 @@ QUERY_CORRECT <- jsonlite::fromJSON('{
   "observed_start": "2021-01-01T00:00:00.000Z"
 }')
 
+QUERY_CORRECT2 <- jsonlite::fromJSON('{
+  "dataset_id": "EO:ECMWF:DAT:CAMS_GLOBAL_EMISSION_INVENTORIES",
+  "variable": [
+    "acetaldehyde"
+  ],
+  "source": [
+    "anthropogenic"
+  ],
+  "version": [
+    "latest"
+  ],
+  "year": [
+    "2000"
+  ],
+  "format": "zip"
+}')
+
 QUERY_FAILED <- jsonlite::fromJSON('{
   "dataset_id": "EO:EEA:DAT:CLMS_HRVPP_VPP",
   "boundingBoxValues": [
@@ -32,7 +49,7 @@ test_that("Search - Matches Found", {
 
   client <- Client$new()
 
-  matches <- client$search(QUERY_CORRECT,2)
+  matches <- client$search(QUERY_CORRECT,1)
 
   # Download files for *all* results
   matches$download("~/deleteme")

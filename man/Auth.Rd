@@ -4,20 +4,7 @@
 \alias{Auth}
 \title{Auth Class}
 \description{
-Auth Class
-
-Auth Class
-}
-\section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{apiUrl}}{The base URL for the API endpoint.
-This field holds the URL to the API that the client interacts with.
-Auth Class Constructor
-
-This function initializes a new instance of the `Auth` class with the specified parameters.}
-}
-\if{html}{\out{</div>}}
+Authorization
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -32,6 +19,7 @@ This function initializes a new instance of the `Auth` class with the specified 
 \if{html}{\out{<a id="method-Auth-new"></a>}}
 \if{latex}{\out{\hypertarget{method-Auth-new}{}}}
 \subsection{Method \code{new()}}{
+This function initializes a new instance of the `Auth` class with the specified parameters.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Auth$new(user = NULL, password = NULL)}\if{html}{\out{</div>}}
 }
@@ -47,32 +35,26 @@ This function initializes a new instance of the `Auth` class with the specified 
 }
 \subsection{Returns}{
 An instance of the `Auth` class.
-
-Retrieve a Token
-
-This function retrieves a previously generated token.
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Auth-token"></a>}}
 \if{latex}{\out{\hypertarget{method-Auth-token}{}}}
 \subsection{Method \code{token()}}{
+This function retrieves a previously generated token.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Auth$token()}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
 A character string representing the retrieved token.
-
-Generate a Token
-
-This function generates a unique token for authentication or other purposes.
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Auth-get_token"></a>}}
 \if{latex}{\out{\hypertarget{method-Auth-get_token}{}}}
 \subsection{Method \code{get_token()}}{
+This function generates a unique token for authentication or other purposes.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Auth$get_token()}\if{html}{\out{</div>}}
 }

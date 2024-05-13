@@ -4,11 +4,6 @@
 \alias{SearchResults}
 \title{SearchResults Class}
 \description{
-SearchResults Class
-
-SearchResults Class
-}
-\details{
 This R6 class handles the storage and manipulation of search results including downloading resources based on a search query.
 }
 \section{Public fields}{
@@ -32,7 +27,6 @@ Constructor for SearchResults}
 \if{latex}{\out{\hypertarget{method-SearchResults-new}{}}}
 \subsection{Method \code{new()}}{
 Initializes a new SearchResults object with the specified client, results, and dataset identifier.
-Download resources
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SearchResults$new(client, results, dataset_id)}\if{html}{\out{</div>}}
 }
