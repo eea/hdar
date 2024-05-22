@@ -4,13 +4,14 @@
 \alias{SearchResults}
 \title{SearchResults Class}
 \description{
-This R6 class handles the storage and manipulation of search results including downloading resources based on a search query.
+This class handles the storage and manipulation of search results including downloading resources based on a search query.
+
+SearchResults
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{results}}{Stores the search results data.
-Constructor for SearchResults}
+\item{\code{results}}{Stores the search results data.}
 }
 \if{html}{\out{</div>}}
 }
@@ -41,6 +42,9 @@ Initializes a new SearchResults object with the specified client, results, and d
 \item{\code{dataset_id}}{The identifier for the dataset being queried.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+SearchResult instance
 }
 }
 \if{html}{\out{<hr>}}

@@ -9,12 +9,19 @@ It provides a comprehensive suite of methods to perform operations and retrieve 
 }
 \note{
 There are some inconsistencies between the return of `GET querymetadata` and what must be submitted to the HDA.
-Use \link{generate_query_template} to resolve these inconsistencies.
+Use \code{\link[=Client]{generate_query_template}} to resolve these inconsistencies.
 }
 \seealso{
-\code{\link{Client$show_terms}} to read the Terms and conditions.
+\code{\link[=Client]{show_terms}} to read the Terms and conditions.
 
 \code{\link[=SearchResults]{SearchResults}} for details on the returned object.
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{apiUrl}}{API endpoint}
+}
+\if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -123,7 +130,7 @@ An HTML document containing the terms and conditions in a collapsible format.
 \subsection{Method \code{terms_and_conditions()}}{
 Function to retrieve and accept terms and conditions. Accepting T&C is permanent,
 it is enough to run this function one.
-To read T&C see \code{\link{Client$show_terms}}.
+To read T&C see \code{\link[=Client]{show_terms}}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Client$terms_and_conditions(term_id, reject = FALSE)}\if{html}{\out{</div>}}
 }

@@ -1,4 +1,4 @@
-#' Auth Class
+#' @title Auth Class
 #'
 #' @description
 #' Authorization
@@ -9,8 +9,6 @@
 Auth <- R6::R6Class("Auth", # nolint: object_name_linter.
   public = list(
 
-    #' Auth Class Constructor
-    #'
     #' @description
     #' This function initializes a new instance of the `Auth` class with the specified parameters.
     #'
@@ -23,8 +21,7 @@ Auth <- R6::R6Class("Auth", # nolint: object_name_linter.
       private$user <- user
       private$password <- password
     },
-    #' Retrieve a Token
-    #'
+
     #' @description
     #' This function retrieves a previously generated token.
     #'
@@ -33,8 +30,7 @@ Auth <- R6::R6Class("Auth", # nolint: object_name_linter.
     token = function() {
       private$token_value
     },
-    #' Generate a Token
-    #'
+
     #' @description
     #' This function generates a unique token for authentication or other purposes.
     #'

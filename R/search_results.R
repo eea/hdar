@@ -1,9 +1,9 @@
-#' SearchResults Class
+#' @title SearchResults Class
 #'
 #' @description
-#' This R6 class handles the storage and manipulation of search results including downloading resources based on a search query.
+#' This class handles the storage and manipulation of search results including downloading resources based on a search query.
 #'
-#' @name SearchResults
+#' SearchResults
 #' @importFrom R6 R6Class
 #' @export
 SearchResults <- R6::R6Class("SearchResults",
@@ -12,12 +12,12 @@ SearchResults <- R6::R6Class("SearchResults",
     #' @field results Stores the search results data.
     results = NULL,
 
-    #' Constructor for SearchResults
     #' @description Initializes a new SearchResults object with the specified client, results, and dataset identifier.
     #'
     #' @param client An object containing the API client used to interact with the dataset.
     #' @param results List containing search results.
     #' @param dataset_id The identifier for the dataset being queried.
+    #' @return SearchResult instance
     #' @export
     initialize = function(client, results, dataset_id) {
       private$client <- client
@@ -25,11 +25,13 @@ SearchResults <- R6::R6Class("SearchResults",
       self$results <- results
     },
 
-    #' Download resources
+    #' @description
+    #' Downloads resources based on stored results or selected indices of results.
     #' @param output_dir A string specifying the directory where downloaded files will be saved, defaulting to the current directory.
     #' @param selected_indexes Optional; indices of the specific results to download.
-    #' @description Downloads resources based on stored results or selected indices of results.
     #' @return Nothing returned but downloaded files are saved at the specified location.
+    #' @importFrom urltools url_parse
+    #' @export
     download = function(output_dir = ".", selected_indexes) {
       print("[Download] Start")
 
@@ -112,7 +114,7 @@ SearchResults <- R6::R6Class("SearchResults",
       # Check if the file contains a dot and is not a hidden file without an extension
       if (grepl("\\.", filename) && !grepl("^\\.", filename)) {
         # we might have ot work with a look up-table to properly detect and extract extnetions.
-        ext <- sub(".*\\.([a-zA-Z]+)$", "\\1", filename) # [a-zA-Z0-9]{1,4}
+        ext <- sub(".*\\.([a-zA-Z0-9]+)$", "\\1", filename) # [a-zA-Z0-9]{1,4}
         if (nchar(ext) > 1 && nchar(ext) <= 4) # minimum nchar 2, max 4.
           {
             return(paste0(".", ext))

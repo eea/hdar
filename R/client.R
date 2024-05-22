@@ -1,4 +1,4 @@
-#' Client Class
+#' @title Client Class
 #'
 #' @description
 #' The Client is the central gateway for interfacing with the HDA Service.
@@ -10,10 +10,9 @@
 Client <- R6::R6Class("Client",
   public = list(
 
+    #' @field apiUrl API endpoint
     apiUrl = "https://gateway.prod.wekeo2.eu/hda-broker/api/v1",
 
-    #' Initialize Client
-    #'
     #' @description
     #' Constructor for the `Client` class. Initializes a new instance with authentication credentials.
     #'
@@ -41,10 +40,7 @@ Client <- R6::R6Class("Client",
     },
 
 
-    #' Retrieve a Token
-    #'
-    #' @description
-    #' Retrieves the current authentication token.
+    #' @description Retrieves the current authentication token.
     #'
     #' @return Character string representing the authentication token.
     #' @export
@@ -53,8 +49,6 @@ Client <- R6::R6Class("Client",
     },
 
 
-    #' Generate a Token
-    #'
     #' @description
     #' Generates a new authentication token.
     #'
@@ -65,10 +59,7 @@ Client <- R6::R6Class("Client",
     },
 
 
-    #' Send a Request
-    #'
-    #' @description
-    #' Sends a specified request to the server and returns the response.
+    #' @description Sends a specified request to the server and returns the response.
     #'
     #' @param req A request object or list representing the HTTP request.
     #' @param path Optional character string specifying the local path where the response should be saved.
@@ -121,14 +112,12 @@ Client <- R6::R6Class("Client",
     },
 
 
-    #' Show Terms and Conditions
-    #'
-    #' @description
-    #' This function displays the terms and conditions for the services.
+    #' @description This function displays the terms and conditions for the services.
     #'
     #' @return An HTML document containing the terms and conditions in a collapsible format.
     #' @importFrom httr2 request req_method req_url_query
     #' @importFrom htmltools tagList tags tagAppendChild HTML html_print
+    #' @export
     show_terms = function() {
       url <- paste0(self$apiUrl, "/terms")
       req <- httr2::request(url) %>%
@@ -197,12 +186,10 @@ Client <- R6::R6Class("Client",
     },
 
 
-    #' Accept Terms and Conditions
-    #'
     #' @description
     #' Function to retrieve and accept terms and conditions. Accepting T&C is permanent,
     #' it is enough to run this function one.
-    #' To read T&C see \code{\link{Client$show_terms}}.
+    #' To read T&C see \code{\link[=Client]{show_terms}}.
     #'
     #' @param term_id A character vector of term_ids that you wish to accept.
     #'                If missing current status is returned.
@@ -210,8 +197,9 @@ Client <- R6::R6Class("Client",
     #' @param reject  Logical, default 'FALSE'. If TRUE it inverts the operation and
     #'                the provided term_id's are rejected/revoked.
     #' @return A data frame reflecting the actual acceptance status for each term.
-    #' @seealso \code{\link{show_terms}} to read the Terms and conditions.
+    #' @seealso \code{\link[=Client]{show_terms}} to read the Terms and conditions.
     #' @importFrom httr2 request req_method
+    #' @export
     terms_and_conditions = function(term_id, reject = FALSE) {
       terms <- private$get_terms_status()
 
@@ -253,8 +241,6 @@ Client <- R6::R6Class("Client",
     },
 
 
-    #' List datasets on WEkEO
-    #'
     #' @description
     #' Lists datasets available on WEkEO, optionally filtered by a text pattern.
     #'
@@ -298,8 +284,6 @@ Client <- R6::R6Class("Client",
     },
 
 
-    #' Search function
-    #'
     #' @description
     #' This function performs a search based on a specified query and returns an instance of \code{\link{SearchResults}}.
     #'
@@ -308,6 +292,7 @@ Client <- R6::R6Class("Client",
     #' @return An instance of the \code{\link{SearchResults}} class containing the search results.
     #' @seealso \code{\link[=SearchResults]{SearchResults}} for details on the returned object.
     #' @importFrom httr2 request req_method req_body_json
+    #' @importFrom stringr str_detect
     #' @export
     search = function(query, limit = NULL) {
 
@@ -334,8 +319,6 @@ Client <- R6::R6Class("Client",
     },
 
 
-    #' Retrieve Raw Query Template
-    #'
     #' @description
     #' Retrieves the raw query metadata for a specified datasetId.
     #'
@@ -345,7 +328,7 @@ Client <- R6::R6Class("Client",
     #' @importFrom httr2 request req_method
     #' @importFrom jsonlite toJSON
     #' @note There are some inconsistencies between the return of `GET querymetadata` and what must be submitted to the HDA.
-    #' Use \link{generate_query_template} to resolve these inconsistencies.
+    #' Use \code{\link[=Client]{generate_query_template}} to resolve these inconsistencies.
     #' @export
     get_querytemplate = function(datasetId, to_json = FALSE) {
       if (missing(datasetId)) {
@@ -365,8 +348,6 @@ Client <- R6::R6Class("Client",
     },
 
 
-    #' Generate a Query Template
-    #'
     #' @description
     #' This function generates a query template based on a specified datasetId.
     #'
