@@ -407,6 +407,8 @@ Client <- R6::R6Class("Client",
       for (param in names(data))
       {
         if (param == "dataset_id") next
+        if (param == "itemsPerPage") next
+        if (param == "startIndex") next
         if (is.null(data[[param]])) next
 
         if (grepl("bbox", param, fixed = TRUE)) {
