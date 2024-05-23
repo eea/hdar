@@ -339,7 +339,52 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h1 class="title toc-ignore">A Guide to hdar package</h1>
 
 
+<div id="TOC">
+<ul>
+<li><a href="#introduction" id="toc-introduction">Introduction</a></li>
+<li><a href="#setup" id="toc-setup">Setup</a></li>
+<li><a href="#creating-and-authenticating-the-client" id="toc-creating-and-authenticating-the-client">Creating and
+Authenticating the Client</a>
+<ul>
+<li><a href="#authentication" id="toc-authentication">Authentication</a></li>
+<li><a href="#checking-authentication" id="toc-checking-authentication">Checking Authentication</a></li>
+</ul></li>
+<li><a href="#finding-datasets" id="toc-finding-datasets">Finding
+Datasets</a>
+<ul>
+<li><a href="#basic-usage" id="toc-basic-usage">Basic Usage</a></li>
+<li><a href="#filtering-datasets" id="toc-filtering-datasets">Filtering
+Datasets</a></li>
+<li><a href="#understanding-the-results" id="toc-understanding-the-results">Understanding the Results</a></li>
+</ul></li>
+<li><a href="#creating-a-query-template" id="toc-creating-a-query-template">Creating a Query Template</a>
+<ul>
+<li><a href="#basic-usage-1" id="toc-basic-usage-1">Basic Usage</a></li>
+<li><a href="#understanding-the-query-template" id="toc-understanding-the-query-template">Understanding the Query
+Template</a></li>
+<li><a href="#using-the-generated-query-template" id="toc-using-the-generated-query-template">Using the Generated Query
+Template</a></li>
+</ul></li>
+<li><a href="#searching-and-downloading-data" id="toc-searching-and-downloading-data">Searching and Downloading
+Data</a>
+<ul>
+<li><a href="#searching-for-data" id="toc-searching-for-data">Searching
+for Data</a></li>
+<li><a href="#downloading-the-found-results" id="toc-downloading-the-found-results">Downloading the Found
+Results</a></li>
+</ul></li>
+</ul>
+</div>
 
+<div id="important-notice" class="section level3">
+<h3>Important Notice</h3>
+<div style="border: 1px solid orange; padding: 10px; background-color: #fff3cd; color: #856404;">
+<p><strong>Notice:</strong> We are currently performing maintenance and
+improvements on the Backend service. You may experience intermittent
+slow responses or minor issues. Rest assured, our team is working hard
+to enhance your experience. Thank you for your patience!</p>
+</div>
+</div>
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
 <p>The <code>hdar</code> R package provides seamless access to the WEkEO
@@ -353,7 +398,7 @@ install and load it in your R environment.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Install hdar from CRAN (if available) or GitHub</span></span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co"># install.packages(&quot;hdar&quot;)</span></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co"># or</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># devtools::install_github(&quot;eea/hdar&quot;)</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># devtools::install_github(&quot;eea/hdar@develop&quot;)</span></span>
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a></span>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co"># Load the hdar package</span></span>
 <span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="fu">library</span>(hdar)</span></code></pre></div>
@@ -493,8 +538,9 @@ placeholders provide hints about the expected value format.</p>
 </div>
 <div id="using-the-generated-query-template" class="section level2">
 <h2>Using the Generated Query Template</h2>
-<p>You can edit the generated query template to specify the values for
-the fields as needed. If you decide not to edit the placeholder values
+<p>You can and should customize the generated query template to fit your
+specific needs. You can remove any unnecessary parameters and set values
+for the ones you need. If you decide not to edit the placeholder values
 and use the generated query template directly in the search function,
 the fields with placeholder values (the ones starting with __###) will
 be stripped off before sending the query to the HDA service.</p>

@@ -1,8 +1,8 @@
-## ----setup, eval = FALSE------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  # Install hdar from CRAN (if available) or GitHub
 #  # install.packages("hdar")
 #  # or
-#  # devtools::install_github("eea/hdar")
+#  # devtools::install_github("eea/hdar@develop")
 #  
 #  # Load the hdar package
 #  library(hdar)
