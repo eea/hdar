@@ -19,7 +19,7 @@ To start using the `hdar` package, you first need to install and load it in your
 # Install hdar from CRAN (if available) or GitHub
 # install.packages("hdar")
 # or
-# devtools::install_github("eea/hdar")
+# devtools::install_github("eea/hdar@develop")
 
 # Load the hdar package
 library(hdar)
