@@ -29,10 +29,11 @@ SearchResults <- R6::R6Class("SearchResults",
     #' Downloads resources based on stored results or selected indices of results.
     #' @param output_dir A string specifying the directory where downloaded files will be saved, defaulting to the current directory.
     #' @param selected_indexes Optional; indices of the specific results to download.
+    #' @param stop_at_failure Optional; controls whether the download process of multiple files should immediately stop upon encountering the first failure.
     #' @return Nothing returned but downloaded files are saved at the specified location.
     #' @importFrom urltools url_parse
     #' @export
-    download = function(output_dir = ".", selected_indexes) {
+    download = function(output_dir = ".", selected_indexes, stop_at_failure = TRUE) {
       print("[Download] Start")
 
       if (!dir.exists(output_dir)) {
@@ -43,34 +44,47 @@ SearchResults <- R6::R6Class("SearchResults",
 
       # resources_to_download <- if (missing(selected_indexes)) self$results else self$results[selected_indexes]
       i <- 0
+      should_break <- FALSE
       for (r in resources_to_download)
       {
+        if (should_break) {
+          break
+        }
+
         i <- i + 1
 
         print(paste0("[Download] Downloading file ", i, "/", length(resources_to_download)))
 
-        # try to fetch the file extension form $location, assume zip if NULL
-        fex <- private$get_file_extention(r$id)
-        if (is.null(fex)) {
-          location_url <- urltools::url_parse(r$properties$location)
-          fex <- private$get_file_extention(location_url$path)
-          if (is.null(fex)) {
-            if (i == 1) {
-              warning("No file extensions could be detected, assuming it is a 'zip'")
+        tryCatch(
+          {
+            # try to fetch the file extension form $location, assume zip if NULL
+            fex <- private$get_file_extention(r$id)
+            if (is.null(fex)) {
+              location_url <- urltools::url_parse(r$properties$location)
+              fex <- private$get_file_extention(location_url$path)
+              if (is.null(fex)) {
+                if (i == 1) {
+                  warning("No file extensions could be detected, assuming it is a 'zip'")
+                }
+                fex <- ".zip"
+              }
             }
-            fex <- ".zip"
-          }
-        }
 
-        local_path <- paste0(output_dir, "/", r$id, fex)
+            local_path <- paste0(output_dir, "/", r$id, fex)
 
-        if (!file.exists(local_path)) {
-          download_id <- private$get_download_id(r)
-          is_ready <- private$ensure_download_is_ready(download_id)
-          if (is_ready) {
-            private$download_resource(download_id, local_path)
+            if (!file.exists(local_path)) {
+              download_id <- private$get_download_id(r)
+              is_ready <- private$ensure_download_is_ready(download_id)
+              if (is_ready) {
+                private$download_resource(download_id, local_path)
+              }
+            }
+          },
+          error = function(err) {
+            print("[!] An error occurred during the download.")
+            should_break <<- stop_at_failure
           }
-        }
+        )
       }
       print("[Download] DONE")
     }
