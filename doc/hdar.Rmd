@@ -1,0 +1,206 @@
+---
+title: "A Guide to hdar package"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{A Guide to hdar package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+The `hdar` R package provides seamless access to the WEkEO Harmonised Data Access (HDA) API, enabling users to efficiently query, download, and process data from the HDA platform.
+
+# Setup
+
+To start using the `hdar` package, you first need to install and load it in your R environment.
+
+```{r setup, eval = FALSE}
+# Install hdar from CRAN (if available) or GitHub
+# install.packages("hdar")
+# or
+# devtools::install_github("eea/hdar")
+
+# Load the hdar package
+library(hdar)
+```
+
+
+# Creating and Authenticating the Client
+To interact with the HDA service, the main point of entry is the Client class. You need to create an instance of this class to make requests to the HDA API.
+
+## Authentication
+
+Authentication is necessary to ensure that you have the correct permissions to access the HDA service. There are two ways to authenticate:
+
+1. Pass user/password at initialization:
+You can directly pass your username and password when you create an instance of the Client class.
+
+2. Use a configuration file:
+Alternatively, you can create a special `~/.hdarc` file with your credentials. If this file is present, you don't need to pass your credentials during initialization; the client will automatically read them from the configuration file.
+
+### Method 1: Pass User/Password at Initialization
+
+You can create an instance of the Client class by passing your username and password directly. Here’s an example:
+
+```{r, eval=FALSE}
+# Define your username and password
+username <- "your_username"
+password <- "your_password"
+
+# Create an instance of the Client class
+client <- Client$new(username, password)
+```
+
+### Method 2: Use a Configuration File
+
+If you prefer not to pass your credentials directly in your code, you can create a `~/.hdarc` file with the following content:
+```{yaml}
+user: <YOUR_USER_NAME>
+password: <YOUR_PASSWORD>
+```
+
+When the Client class is initialized without user credentials, it will look for the `~/.hdarc` file and use the credentials specified there.
+
+Here’s an example of how to initialize the Client class using the configuration file:
+
+```{r, eval=FALSE}
+# Create an instance of the Client class
+client <- Client$new()
+```
+
+## Checking Authentication
+
+Once the client is created, you can check if it has been authenticated properly by calling a method `token()` that verifies authentication. For example:
+
+```{r, eval=FALSE}
+# Example method to check authentication by getting the auth token
+client$get_token()
+print(client$token())
+```
+
+By using one of these methods, you can securely authenticate with the HDA service and start making requests.
+
+
+# Finding Datasets
+
+To interact with the HDA service, you will often need to find datasets available on WEkEO. The Client class provides a method called `datasets` that lists available datasets, optionally filtered by a text pattern.
+
+## Basic Usage
+
+The basic usage of the datasets method is straightforward. You can retrieve a list of all datasets available on WEkEO by calling the `datasets` method on an instance of the `Client` class.
+
+```{r, eval=FALSE}
+# Assuming 'client' is already created and authenticated
+all_datasets <- client$datasets()
+print(all_datasets)
+```
+
+## Filtering Datasets
+
+You can also filter the datasets by providing a text pattern. This is useful when you are looking for datasets that match a specific keyword or phrase.
+
+```{r, eval=FALSE}
+# Assuming 'client' is already created and authenticated
+pattern <- "climate"
+filtered_datasets <- client$datasets(pattern)
+print(filtered_datase
+```
+
+## Understanding the Results
+
+The datasets method returns a list containing datasets and associated information. This information may include dataset names, descriptions, and other metadata.
+
+# Creating a Query Template
+
+To search for data in the HDA service, you need to create a query template. Manually creating a query template can be tedious as it involves reading documentation and learning about possible parameters. To simplify this process, the `generate_query_template` function is provided to automate the creation of query templates for a given dataset.
+
+## Basic Usage
+
+The generate_query_template function generates a template of a query for a specified dataset. This function fetches information about existing parameters, default values, etc., from the `/queryable` endpoint of the HDA service.
+
+#### Example: Generating a Query Template
+
+Here is an example of how to generate a query template for the dataset with the ID "EO:CRYO:DAT:HRSI:FSC":
+
+```{r, eval = FALSE}
+# Assuming 'client' is already created and authenticated
+query_template <- client$generate_query_template("EO:CRYO:DAT:HRSI:FSC")
+print(query_template)
+```
+
+## Understanding the Query Template
+
+The generated query template includes fields with descriptive placeholder values where default values are not specified. These placeholders provide hints about the expected value format.
+
+#### Example Query Template
+
+```{json}
+{
+  "dataset_id": "EO:CRYO:DAT:HRSI:FSC",
+  "cloudCover": "__### Value of string type with pattern: ^[0-9]*$",
+  "productIdentifier": "__### Value of string type with pattern: ^.*$",
+  "q": "__### Value of string type with pattern: ^.*$",
+  "observed_start": "2021-01-01T00:00:00.000Z",
+  "observed_end": "__### Value of string",
+  "published_start": "__### Value of string",
+  "published_end": "__### Value of string"
+}
+```
+
+## Using the Generated Query Template
+
+You can edit the generated query template to specify the values for the fields as needed. If you decide not to edit the placeholder values and use the generated query template directly in the search function, the fields with placeholder values (the ones starting with __###) will be stripped off before sending the query to the HDA service.
+
+####Example: Using the Query Template in a Search
+
+Here is an example of how to use the query template in a search:
+
+```{r, eval = FALSE}
+# Modify the query template as needed
+query_template$cloudCover <- "10"
+
+# Perform the search using the modified query template
+search_results <- client$search(query_template)
+print(search_results)
+```
+
+
+# Searching and Downloading Data
+
+To search for data in the HDA service, you can use the `search` function provided by the Client class. This function allows you to search for datasets based on a query and optionally limit the number of results. The search results can then be downloaded using the download method of the `SearchResults` class.
+
+## Searching for Data
+
+The `search` function takes a query and an optional limit parameter, which specifies the maximum number of results you want to retrieve. The function only searches for data and does not download it. The output of this function is an instance of the `SearchResults` class.
+
+#### Example: Searching for Data
+
+Here is an example of how to search for data using a query and limit the results to 5:
+
+```{r, eval = FALSE}
+# Assuming 'client' is already created and authenticated, 'query' is defined
+matches <- client$search(query, 5)
+print(matches$results)
+```
+
+## Downloading the Found Results
+
+The `SearchResults` class has a public field results and a method called download that is responsible for downloading the found data. The `download()` function takes an output directory and an optional parameter to specify which results to download.
+
+#### Example: Downloading All Results
+
+```{r, eval = FALSE}
+# Assuming 'matches' is an instance of SearchResults obtained from the search
+matches$download("~/downloads")
+```
+
+#### Example: Downloading Selected Results
+
+You can also specify which results to download by providing their indexes:
+
+```{r, eval = FALSE}
+# Assuming 'matches' is an instance of SearchResults obtained from the search
+selected_indexes <- c(1, 3, 5)  # Download only the 1st, 3rd, and 5th results
+matches$download("~/downloads", selected_indexes)
+```
