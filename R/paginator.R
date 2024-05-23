@@ -1,21 +1,18 @@
 Paginator <- R6::R6Class("Paginator",
-
   public = list(
-
     results = NULL,
-
-    initialize = function(client, request_type = 'POST') {
+    initialize = function(client, request_type = "POST") {
       private$client <- client
       private$request_type <- request_type
     },
-
     run = function(request, limit = NULL, items_per_page = 1) {
-
       results <- list()
       start_index <- 0
 
-      params <- list('startIndex' = 0,
-                     'itemsPerPage' = items_per_page)
+      params <- list(
+        "startIndex" = 0,
+        "itemsPerPage" = items_per_page
+      )
 
       tryCatch(
         {
@@ -30,15 +27,11 @@ Paginator <- R6::R6Class("Paginator",
             }
 
             if ((!is.null(limit) && length(results) >= limit) ||
-                length(results) >= resp$properties$totalResults || length(results) == 0) {
+              length(results) >= resp$properties$totalResults || length(results) == 0) {
               break
             }
 
             start_index <- length(results)
-
-            if (length(results) >= 3) {
-              break
-            }
           }
 
           results
@@ -49,18 +42,17 @@ Paginator <- R6::R6Class("Paginator",
       )
     }
   ),
-
   private = list(
     client = NULL,
     request_type = NULL,
-
     get_page = function(request, start_index = 0, items_per_page = 1) {
-
-      params <- list('startIndex' = start_index,
-                     'itemsPerPage' = items_per_page)
+      params <- list(
+        "startIndex" = start_index,
+        "itemsPerPage" = items_per_page
+      )
 
       req <- request
-      if (private$request_type == 'POST') {
+      if (private$request_type == "POST") {
         req <- req %>%
           httr2::req_body_json_modify(params)
       } else {
@@ -69,9 +61,5 @@ Paginator <- R6::R6Class("Paginator",
       }
       private$client$send_request(req)$data
     }
-
   )
-
 )
-
-
