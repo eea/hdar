@@ -45,8 +45,7 @@ SearchResults <- R6::R6Class("SearchResults",
       # resources_to_download <- if (missing(selected_indexes)) self$results else self$results[selected_indexes]
       i <- 0
       should_break <- FALSE
-      for (r in resources_to_download)
-      {
+      for (r in resources_to_download) {
         if (should_break) {
           break
         }
@@ -71,13 +70,16 @@ SearchResults <- R6::R6Class("SearchResults",
             }
 
             local_path <- paste0(output_dir, "/", r$id, fex)
+            final_path <- if (file.exists(local_path)) {
+              private$generate_new_filename(local_path)
+            } else {
+              local_path
+            }
 
-            if (!file.exists(local_path)) {
-              download_id <- private$get_download_id(r)
-              is_ready <- private$ensure_download_is_ready(download_id)
-              if (is_ready) {
-                private$download_resource(download_id, local_path)
-              }
+            download_id <- private$get_download_id(r)
+            is_ready <- private$ensure_download_is_ready(download_id)
+            if (is_ready) {
+              private$download_resource(download_id, final_path)
             }
           },
           error = function(err) {
@@ -150,6 +152,21 @@ SearchResults <- R6::R6Class("SearchResults",
       }
 
       stop(paste("Couldn't download: ", url))
+    },
+    # Function to generate a new filename if the original exists
+    generate_new_filename = function(path) {
+      base <- tools::file_path_sans_ext(path)
+      ext <- tools::file_ext(path)
+
+      i <- 1
+      new_path <- sprintf("%s_%d.%s", base, i, ext)
+
+      while (file.exists(new_path)) {
+        i <- i + 1
+        new_path <- sprintf("%s_%d.%s", base, i, ext)
+      }
+
+      new_path
     }
   )
 )

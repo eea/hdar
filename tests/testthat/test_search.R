@@ -46,10 +46,9 @@ QUERY_FAILED <- jsonlite::fromJSON('{
 }')
 
 test_that("Search - Matches Found", {
-
   client <- Client$new()
 
-  matches <- client$search(QUERY_CORRECT,1)
+  matches <- client$search(QUERY_CORRECT, 1)
 
   # Download files for *all* results
   matches$download("~/deleteme")
@@ -62,7 +61,3 @@ test_that("Search - Failed Query", {
   client <- Client$new()
   expect_error(matches <- client$search(QUERY_FAILED), "Search query failed")
 })
-
-
-
-

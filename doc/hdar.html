@@ -342,11 +342,12 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div id="TOC">
 <ul>
 <li><a href="#introduction" id="toc-introduction">Introduction</a></li>
+<li><a href="#accessing-the-hda-service" id="toc-accessing-the-hda-service">Accessing the HDA Service</a></li>
 <li><a href="#setup" id="toc-setup">Setup</a></li>
-<li><a href="#creating-and-authenticating-the-client" id="toc-creating-and-authenticating-the-client">Creating and
-Authenticating the Client</a>
+<li><a href="#authentication" id="toc-authentication">Authentication</a>
 <ul>
-<li><a href="#authentication" id="toc-authentication">Authentication</a></li>
+<li><a href="#creating-and-authenticating-the-client" id="toc-creating-and-authenticating-the-client">Creating and
+Authenticating the Client</a></li>
 <li><a href="#checking-authentication" id="toc-checking-authentication">Checking Authentication</a></li>
 </ul></li>
 <li><a href="#finding-datasets" id="toc-finding-datasets">Finding
@@ -391,6 +392,17 @@ to enhance your experience. Thank you for your patience!</p>
 Harmonised Data Access (HDA) API, enabling users to efficiently query,
 download, and process data from the HDA platform.</p>
 </div>
+<div id="accessing-the-hda-service" class="section level1">
+<h1>Accessing the HDA Service</h1>
+<p>To utilize the HDA service and library, you must first register for a
+WEkEO account. The HDA service is available at no cost to all WEkEO
+users. Creating an account allows you full access to our services,
+ensuring you can leverage the full capabilities of HDA seamlessly.
+Registration is straightforward and can be completed through the
+following link: <a href="https://www.wekeo.eu/register">Register for
+WEkEO</a>. Once your account is set up, you will be able to access the
+HDA services immediately.</p>
+</div>
 <div id="setup" class="section level1">
 <h1>Setup</h1>
 <p>To start using the <code>hdar</code> package, you first need to
@@ -403,50 +415,45 @@ install and load it in your R environment.</p>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co"># Load the hdar package</span></span>
 <span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="fu">library</span>(hdar)</span></code></pre></div>
 </div>
-<div id="creating-and-authenticating-the-client" class="section level1">
-<h1>Creating and Authenticating the Client</h1>
-<p>To interact with the HDA service, the main point of entry is the
-Client class. You need to create an instance of this class to make
-requests to the HDA API.</p>
-<div id="authentication" class="section level2">
-<h2>Authentication</h2>
-<p>Authentication is necessary to ensure that you have the correct
-permissions to access the HDA service. There are two ways to
-authenticate:</p>
-<ol style="list-style-type: decimal">
-<li><p>Pass user/password at initialization: You can directly pass your
-username and password when you create an instance of the Client
-class.</p></li>
-<li><p>Use a configuration file: Alternatively, you can create a special
-<code>~/.hdarc</code> file with your credentials. If this file is
-present, you don’t need to pass your credentials during initialization;
-the client will automatically read them from the configuration
-file.</p></li>
-</ol>
-<div id="method-1-pass-userpassword-at-initialization" class="section level3">
-<h3>Method 1: Pass User/Password at Initialization</h3>
-<p>You can create an instance of the Client class by passing your
-username and password directly. Here’s an example:</p>
+<div id="authentication" class="section level1">
+<h1>Authentication</h1>
+<p>To interact with the HDA service, you need to authenticate by
+providing your username and password. The <code>Client</code> class
+allows you to pass these credentials directly and optionally save them
+to a configuration file for future use. If credentials are not specified
+as parameters, the client will read them from the <code>~/.hdarc</code>
+file.</p>
+<div id="creating-and-authenticating-the-client" class="section level2">
+<h2>Creating and Authenticating the Client</h2>
+<p>You can create an instance of the <code>Client</code> class by
+passing your username and password directly. TThe initialization method
+has an optional parameter <code>save_credentials</code> that specifies
+whether the provided credentials should be saved in the
+<code>~/.hdarc</code> configuration file. By default,
+<code>save_credential</code>s is set to <code>FALSE</code>.</p>
+<div id="example-pass-userpassword-at-initialization" class="section level3">
+<h3>Example: Pass User/Password at Initialization</h3>
+<p>Here is an example of how to authenticate by passing the user and
+password, and optionally saving these credentials:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Define your username and password</span></span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>username <span class="ot">&lt;-</span> <span class="st">&quot;your_username&quot;</span></span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>password <span class="ot">&lt;-</span> <span class="st">&quot;your_password&quot;</span></span>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co"># Create an instance of the Client class</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>client <span class="ot">&lt;-</span> Client<span class="sc">$</span><span class="fu">new</span>(username, password)</span></code></pre></div>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co"># Create an instance of the Client class and save credentials to a config file</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co"># The save_credentials parameter is optional and defaults to FALSE</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>client <span class="ot">&lt;-</span> Client<span class="sc">$</span><span class="fu">new</span>(username, password, <span class="at">save_credentials =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p>If the <code>save_credentials</code> parameter is set to
+<code>TRUE</code>, the credentials will be saved in the
+<code>~/.hdarc</code> file, making it easier to authenticate in future
+sessions without passing the credentials again.</p>
 </div>
-<div id="method-2-use-a-configuration-file" class="section level3">
-<h3>Method 2: Use a Configuration File</h3>
-<p>If you prefer not to pass your credentials directly in your code, you
-can create a <code>~/.hdarc</code> file with the following content:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">user</span><span class="kw">:</span><span class="at"> &lt;YOUR_USER_NAME&gt;</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">password</span><span class="kw">:</span><span class="at"> &lt;YOUR_PASSWORD&gt;</span></span></code></pre></div>
-<p>When the Client class is initialized without user credentials, it
-will look for the <code>~/.hdarc</code> file and use the credentials
-specified there.</p>
-<p>Here’s an example of how to initialize the Client class using the
-configuration file:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Create an instance of the Client class</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>client <span class="ot">&lt;-</span> Client<span class="sc">$</span><span class="fu">new</span>()</span></code></pre></div>
+<div id="example-using-saved-credentials" class="section level3">
+<h3>Example: Using Saved Credentials</h3>
+<p>Once the credentials are saved, you can initialize the Client class
+without passing the credentials. The client will read the credentials
+from the <code>~/.hdarc</code> file:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Create an instance of the Client class without passing credentials</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>client <span class="ot">&lt;-</span> Client<span class="sc">$</span><span class="fu">new</span>()</span></code></pre></div>
 </div>
 </div>
 <div id="checking-authentication" class="section level2">
@@ -454,9 +461,9 @@ configuration file:</p>
 <p>Once the client is created, you can check if it has been
 authenticated properly by calling a method <code>token()</code> that
 verifies authentication. For example:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Example method to check authentication by getting the auth token</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>client<span class="sc">$</span><span class="fu">get_token</span>()</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">print</span>(client<span class="sc">$</span><span class="fu">token</span>())</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Example method to check authentication by getting the auth token</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>client<span class="sc">$</span><span class="fu">get_token</span>()</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">print</span>(client<span class="sc">$</span><span class="fu">token</span>())</span></code></pre></div>
 <p>By using one of these methods, you can securely authenticate with the
 HDA service and start making requests.</p>
 </div>
@@ -473,19 +480,19 @@ by a text pattern.</p>
 retrieve a list of all datasets available on WEkEO by calling the
 <code>datasets</code> method on an instance of the <code>Client</code>
 class.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Assuming &#39;client&#39; is already created and authenticated</span></span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>all_datasets <span class="ot">&lt;-</span> client<span class="sc">$</span><span class="fu">datasets</span>()</span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="fu">print</span>(all_datasets)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Assuming &#39;client&#39; is already created and authenticated</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>all_datasets <span class="ot">&lt;-</span> client<span class="sc">$</span><span class="fu">datasets</span>()</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">print</span>(all_datasets)</span></code></pre></div>
 </div>
 <div id="filtering-datasets" class="section level2">
 <h2>Filtering Datasets</h2>
 <p>You can also filter the datasets by providing a text pattern. This is
 useful when you are looking for datasets that match a specific keyword
 or phrase.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Assuming &#39;client&#39; is already created and authenticated</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>pattern <span class="ot">&lt;-</span> <span class="st">&quot;climate&quot;</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>filtered_datasets <span class="ot">&lt;-</span> client<span class="sc">$</span><span class="fu">datasets</span>(pattern)</span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="fu">print</span>(filtered_datase</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Assuming &#39;client&#39; is already created and authenticated</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>pattern <span class="ot">&lt;-</span> <span class="st">&quot;climate&quot;</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>filtered_datasets <span class="ot">&lt;-</span> client<span class="sc">$</span><span class="fu">datasets</span>(pattern)</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="fu">print</span>(filtered_datase</span></code></pre></div>
 </div>
 <div id="understanding-the-results" class="section level2">
 <h2>Understanding the Results</h2>
@@ -512,9 +519,9 @@ existing parameters, default values, etc., from the
 <h4>Example: Generating a Query Template</h4>
 <p>Here is an example of how to generate a query template for the
 dataset with the ID “EO:CRYO:DAT:HRSI:FSC”:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Assuming &#39;client&#39; is already created and authenticated</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>query_template <span class="ot">&lt;-</span> client<span class="sc">$</span><span class="fu">generate_query_template</span>(<span class="st">&quot;EO:CRYO:DAT:HRSI:FSC&quot;</span>)</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="fu">print</span>(query_template)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Assuming &#39;client&#39; is already created and authenticated</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>query_template <span class="ot">&lt;-</span> client<span class="sc">$</span><span class="fu">generate_query_template</span>(<span class="st">&quot;EO:CRYO:DAT:HRSI:FSC&quot;</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">print</span>(query_template)</span></code></pre></div>
 </div>
 </div>
 <div id="understanding-the-query-template" class="section level2">
@@ -524,16 +531,16 @@ placeholder values where default values are not specified. These
 placeholders provide hints about the expected value format.</p>
 <div id="example-query-template" class="section level4">
 <h4>Example Query Template</h4>
-<div class="sourceCode" id="cb9"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="dt">&quot;dataset_id&quot;</span><span class="fu">:</span> <span class="st">&quot;EO:CRYO:DAT:HRSI:FSC&quot;</span><span class="fu">,</span></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="dt">&quot;cloudCover&quot;</span><span class="fu">:</span> <span class="st">&quot;__### Value of string type with pattern: ^[0-9]*$&quot;</span><span class="fu">,</span></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="dt">&quot;productIdentifier&quot;</span><span class="fu">:</span> <span class="st">&quot;__### Value of string type with pattern: ^.*$&quot;</span><span class="fu">,</span></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="dt">&quot;q&quot;</span><span class="fu">:</span> <span class="st">&quot;__### Value of string type with pattern: ^.*$&quot;</span><span class="fu">,</span></span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>  <span class="dt">&quot;observed_start&quot;</span><span class="fu">:</span> <span class="st">&quot;2021-01-01T00:00:00.000Z&quot;</span><span class="fu">,</span></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>  <span class="dt">&quot;observed_end&quot;</span><span class="fu">:</span> <span class="st">&quot;__### Value of string&quot;</span><span class="fu">,</span></span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>  <span class="dt">&quot;published_start&quot;</span><span class="fu">:</span> <span class="st">&quot;__### Value of string&quot;</span><span class="fu">,</span></span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>  <span class="dt">&quot;published_end&quot;</span><span class="fu">:</span> <span class="st">&quot;__### Value of string&quot;</span></span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="dt">&quot;dataset_id&quot;</span><span class="fu">:</span> <span class="st">&quot;EO:CRYO:DAT:HRSI:FSC&quot;</span><span class="fu">,</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="dt">&quot;cloudCover&quot;</span><span class="fu">:</span> <span class="st">&quot;__### Value of string type with pattern: ^[0-9]*$&quot;</span><span class="fu">,</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="dt">&quot;productIdentifier&quot;</span><span class="fu">:</span> <span class="st">&quot;__### Value of string type with pattern: ^.*$&quot;</span><span class="fu">,</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="dt">&quot;q&quot;</span><span class="fu">:</span> <span class="st">&quot;__### Value of string type with pattern: ^.*$&quot;</span><span class="fu">,</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="dt">&quot;observed_start&quot;</span><span class="fu">:</span> <span class="st">&quot;2021-01-01T00:00:00.000Z&quot;</span><span class="fu">,</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="dt">&quot;observed_end&quot;</span><span class="fu">:</span> <span class="st">&quot;__### Value of string&quot;</span><span class="fu">,</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>  <span class="dt">&quot;published_start&quot;</span><span class="fu">:</span> <span class="st">&quot;__### Value of string&quot;</span><span class="fu">,</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>  <span class="dt">&quot;published_end&quot;</span><span class="fu">:</span> <span class="st">&quot;__### Value of string&quot;</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 </div>
 </div>
 <div id="using-the-generated-query-template" class="section level2">
@@ -544,14 +551,22 @@ for the ones you need. If you decide not to edit the placeholder values
 and use the generated query template directly in the search function,
 the fields with placeholder values (the ones starting with __###) will
 be stripped off before sending the query to the HDA service.</p>
-<p>####Example: Using the Query Template in a Search</p>
+<div id="example-using-the-query-template-in-a-search" class="section level4">
+<h4>Example: Using the Query Template in a Search</h4>
 <p>Here is an example of how to use the query template in a search:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># Modify the query template as needed</span></span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>query_template<span class="sc">$</span>cloudCover <span class="ot">&lt;-</span> <span class="st">&quot;10&quot;</span></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co"># Perform the search using the modified query template</span></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>search_results <span class="ot">&lt;-</span> client<span class="sc">$</span><span class="fu">search</span>(query_template)</span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="fu">print</span>(search_results)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Modify the query template as needed</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>query_template<span class="sc">$</span>cloudCover <span class="ot">&lt;-</span> <span class="st">&quot;10&quot;</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co"># Perform the search using the modified query template</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>matches <span class="ot">&lt;-</span> client<span class="sc">$</span><span class="fu">search</span>(query_template)</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">sapply</span>(matches<span class="sc">$</span>results, <span class="cf">function</span>(x) {</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>  <span class="fu">list</span>(</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>    <span class="st">&quot;id&quot;</span> <span class="ot">=</span> x<span class="sc">$</span>id,</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>    <span class="st">&quot;size&quot;</span> <span class="ot">=</span> x<span class="sc">$</span>properties<span class="sc">$</span>size,</span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>    <span class="st">&quot;location&quot;</span> <span class="ot">=</span> x<span class="sc">$</span>properties<span class="sc">$</span>location</span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>  )</span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>}))</span></code></pre></div>
+</div>
 </div>
 </div>
 <div id="searching-and-downloading-data" class="section level1">
@@ -572,9 +587,9 @@ The output of this function is an instance of the
 <h4>Example: Searching for Data</h4>
 <p>Here is an example of how to search for data using a query and limit
 the results to 5:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># Assuming &#39;client&#39; is already created and authenticated, &#39;query&#39; is defined</span></span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>matches <span class="ot">&lt;-</span> client<span class="sc">$</span><span class="fu">search</span>(query, <span class="dv">5</span>)</span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="fu">print</span>(matches<span class="sc">$</span>results)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># Assuming &#39;client&#39; is already created and authenticated, &#39;query&#39; is defined</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>matches <span class="ot">&lt;-</span> client<span class="sc">$</span><span class="fu">search</span>(query, <span class="dv">5</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="fu">print</span>(matches<span class="sc">$</span>results)</span></code></pre></div>
 </div>
 </div>
 <div id="downloading-the-found-results" class="section level2">
@@ -585,16 +600,16 @@ data. The <code>download()</code> function takes an output directory and
 an optional parameter to specify which results to download.</p>
 <div id="example-downloading-all-results" class="section level4">
 <h4>Example: Downloading All Results</h4>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="co"># Assuming &#39;matches&#39; is an instance of SearchResults obtained from the search</span></span>
-<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>matches<span class="sc">$</span><span class="fu">download</span>(<span class="st">&quot;~/downloads&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># Assuming &#39;matches&#39; is an instance of SearchResults obtained from the search</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>matches<span class="sc">$</span><span class="fu">download</span>(<span class="st">&quot;~/downloads&quot;</span>)</span></code></pre></div>
 </div>
 <div id="example-downloading-selected-results" class="section level4">
 <h4>Example: Downloading Selected Results</h4>
 <p>You can also specify which results to download by providing their
 indexes:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="co"># Assuming &#39;matches&#39; is an instance of SearchResults obtained from the search</span></span>
-<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>selected_indexes <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>)  <span class="co"># Download only the 1st, 3rd, and 5th results</span></span>
-<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>matches<span class="sc">$</span><span class="fu">download</span>(<span class="st">&quot;~/downloads&quot;</span>, selected_indexes)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="co"># Assuming &#39;matches&#39; is an instance of SearchResults obtained from the search</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>selected_indexes <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>)  <span class="co"># Download only the 1st, 3rd, and 5th results</span></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>matches<span class="sc">$</span><span class="fu">download</span>(<span class="st">&quot;~/downloads&quot;</span>, selected_indexes)</span></code></pre></div>
 </div>
 </div>
 </div>

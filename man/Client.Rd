@@ -45,7 +45,7 @@ Use \code{\link[=Client]{generate_query_template}} to resolve these inconsistenc
 \subsection{Method \code{new()}}{
 Constructor for the `Client` class. Initializes a new instance with authentication credentials.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Client$new(user, password, overwrite = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Client$new(user, password, save_credentials = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -55,7 +55,7 @@ Constructor for the `Client` class. Initializes a new instance with authenticati
 
 \item{\code{password}}{Character string representing the password for authentication.}
 
-\item{\code{overwrite}}{Logical; `FALSE` by default. If `TRUE`, overwrites any existing credentials.}
+\item{\code{save_credentials}}{A logical value indicating whether to save the credentials to a configuration file. Default is FALSE.}
 }
 \if{html}{\out{</div>}}
 }

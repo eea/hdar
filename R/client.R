@@ -18,10 +18,10 @@ Client <- R6::R6Class("Client",
     #'
     #' @param user Character string representing the username for authentication.
     #' @param password Character string representing the password for authentication.
-    #' @param overwrite Logical; `FALSE` by default. If `TRUE`, overwrites any existing credentials.
+    #' @param save_credentials A logical value indicating whether to save the credentials to a configuration file. Default is FALSE.
     #' @return An instance of the `Client` class.
     #' @export
-    initialize = function(user, password, overwrite = FALSE) {
+    initialize = function(user, password, save_credentials = FALSE) {
       if (missing(user) || missing(password)) {
         # read from ~/.hdrc file
         cred <- private$read_credentials_from_file()
@@ -34,7 +34,9 @@ Client <- R6::R6Class("Client",
         }
       }
 
-      private$save_credentials_to_file(user, password, overwrite)
+      if (save_credentials) {
+        private$save_credentials_to_file(user, password)
+      }
 
       private$auth <- Auth$new(user, password)
     },
@@ -66,7 +68,6 @@ Client <- R6::R6Class("Client",
     #' @return A response object containing the server's response.
     #' @export
     send_request = function(req, path = NULL) {
-
       if (is.null(private$auth$token())) {
         private$auth$get_token()
       }
@@ -257,7 +258,6 @@ Client <- R6::R6Class("Client",
       resp <- self$send_request(req)$data
 
       datasets <- lapply(resp$features, function(x) {
-        # x <- resp$features#[[218]]
         meta <- x$metadata[["_source"]]
 
         abs <- meta[["abstract"]]
@@ -295,9 +295,8 @@ Client <- R6::R6Class("Client",
     #' @importFrom stringr str_detect
     #' @export
     search = function(query, limit = NULL) {
-
       json_query <- jsonlite::toJSON(query, pretty = TRUE, auto_unbox = TRUE)
-      json_query = strip_off_template_placeholders(json_query)
+      json_query <- strip_off_template_placeholders(json_query)
 
       url <- paste0(self$apiUrl, "/dataaccess/search")
       req <- httr2::request(url) %>%
@@ -312,7 +311,6 @@ Client <- R6::R6Class("Client",
           SearchResults$new(self, results, query$dataset_id)
         },
         error = function(err) {
-          #print(paste("error in search: ", err))
           stop(paste("Search query failed"))
         }
       )
@@ -381,11 +379,9 @@ Client <- R6::R6Class("Client",
       }
       prop_value <- gsub(regexp, "\\1", file[idx]) %>% trimws()
     },
-    save_credentials_to_file = function(user, pwd, overwrite = FALSE) {
+    save_credentials_to_file = function(user, pwd) {
       if (!file.exists("~/.hdarc")) {
         file.create("~/.hdarc")
-      } else if (!overwrite) {
-        return()
       }
 
       fileConn <- file("~/.hdarc")
@@ -418,8 +414,8 @@ Client <- R6::R6Class("Client",
             data[[param]][["items"]][[3]]$maximum,
             data[[param]][["items"]][[4]]$maximum
           )
-          # obj <- c(obj, setNames(list(extent), "bbox"))
-          # obj$bbox <- list(extent)
+          obj <- c(obj, setNames(list(extent), "bbox"))
+          obj$bbox <- list(extent)
           next
         }
 

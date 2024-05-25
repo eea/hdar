@@ -20,6 +20,10 @@ vignette: >
 
 The `hdar` R package provides seamless access to the WEkEO Harmonised Data Access (HDA) API, enabling users to efficiently query, download, and process data from the HDA platform.
 
+# Accessing the HDA Service
+
+To utilize the HDA service and library, you must first register for a WEkEO account. The HDA service is available at no cost to all WEkEO users. Creating an account allows you full access to our services, ensuring you can leverage the full capabilities of HDA seamlessly. Registration is straightforward and can be completed through the following link: [Register for WEkEO](https://www.wekeo.eu/register). Once your account is set up, you will be able to access the HDA services immediately.
+
 # Setup
 
 To start using the `hdar` package, you first need to install and load it in your R environment.
@@ -34,48 +38,36 @@ To start using the `hdar` package, you first need to install and load it in your
 library(hdar)
 ```
 
-# Creating and Authenticating the Client
+# Authentication
 
-To interact with the HDA service, the main point of entry is the Client class. You need to create an instance of this class to make requests to the HDA API.
+To interact with the HDA service, you need to authenticate by providing your username and password. The `Client` class allows you to pass these credentials directly and optionally save them to a configuration file for future use. If credentials are not specified as parameters, the client will read them from the `~/.hdarc` file.
 
-## Authentication
+## Creating and Authenticating the Client
 
-Authentication is necessary to ensure that you have the correct permissions to access the HDA service. There are two ways to authenticate:
+You can create an instance of the `Client` class by passing your username and password directly. TThe initialization method has an optional parameter `save_credentials` that specifies whether the provided credentials should be saved in the `~/.hdarc` configuration file. By default, `save_credential`s is set to `FALSE`.
 
-1. Pass user/password at initialization:
-   You can directly pass your username and password when you create an instance of the Client class.
+### Example: Pass User/Password at Initialization
 
-2. Use a configuration file:
-   Alternatively, you can create a special `~/.hdarc` file with your credentials. If this file is present, you don't need to pass your credentials during initialization; the client will automatically read them from the configuration file.
-
-### Method 1: Pass User/Password at Initialization
-
-You can create an instance of the Client class by passing your username and password directly. Here’s an example:
+Here is an example of how to authenticate by passing the user and password, and optionally saving these credentials:
 
 ```{r, eval=FALSE}
 # Define your username and password
 username <- "your_username"
 password <- "your_password"
 
-# Create an instance of the Client class
-client <- Client$new(username, password)
+# Create an instance of the Client class and save credentials to a config file
+# The save_credentials parameter is optional and defaults to FALSE
+client <- Client$new(username, password, save_credentials = TRUE)
 ```
 
-### Method 2: Use a Configuration File
+If the `save_credentials` parameter is set to `TRUE`, the credentials will be saved in the `~/.hdarc` file, making it easier to authenticate in future sessions without passing the credentials again.
 
-If you prefer not to pass your credentials directly in your code, you can create a `~/.hdarc` file with the following content:
+### Example: Using Saved Credentials
 
-```{yaml}
-user: <YOUR_USER_NAME>
-password: <YOUR_PASSWORD>
-```
-
-When the Client class is initialized without user credentials, it will look for the `~/.hdarc` file and use the credentials specified there.
-
-Here’s an example of how to initialize the Client class using the configuration file:
+Once the credentials are saved, you can initialize the Client class without passing the credentials. The client will read the credentials from the `~/.hdarc` file:
 
 ```{r, eval=FALSE}
-# Create an instance of the Client class
+# Create an instance of the Client class without passing credentials
 client <- Client$new()
 ```
 
@@ -161,7 +153,7 @@ The generated query template includes fields with descriptive placeholder values
 
 You can and should customize the generated query template to fit your specific needs. You can remove any unnecessary parameters and set values for the ones you need. If you decide not to edit the placeholder values and use the generated query template directly in the search function, the fields with placeholder values (the ones starting with \_\_###) will be stripped off before sending the query to the HDA service.
 
-####Example: Using the Query Template in a Search
+#### Example: Using the Query Template in a Search
 
 Here is an example of how to use the query template in a search:
 
@@ -170,8 +162,14 @@ Here is an example of how to use the query template in a search:
 query_template$cloudCover <- "10"
 
 # Perform the search using the modified query template
-search_results <- client$search(query_template)
-print(search_results)
+matches <- client$search(query_template)
+print(sapply(matches$results, function(x) {
+  list(
+    "id" = x$id,
+    "size" = x$properties$size,
+    "location" = x$properties$location
+  )
+}))
 ```
 
 # Searching and Downloading Data

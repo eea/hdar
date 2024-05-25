@@ -5,7 +5,7 @@ Paginator <- R6::R6Class("Paginator",
       private$client <- client
       private$request_type <- request_type
     },
-    run = function(request, limit = NULL, items_per_page = 1) {
+    run = function(request, limit = NULL, items_per_page = 10) {
       results <- list()
       start_index <- 0
 
@@ -45,7 +45,7 @@ Paginator <- R6::R6Class("Paginator",
   private = list(
     client = NULL,
     request_type = NULL,
-    get_page = function(request, start_index = 0, items_per_page = 1) {
+    get_page = function(request, start_index = 0, items_per_page = 10) {
       params <- list(
         "startIndex" = start_index,
         "itemsPerPage" = items_per_page
