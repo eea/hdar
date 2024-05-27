@@ -253,34 +253,18 @@ Client <- R6::R6Class("Client",
       url <- paste0(self$apiUrl, "/datasets")
       req <- httr2::request(url) %>%
         httr2::req_method("GET") %>%
-        httr2::req_url_query(q = pattern, startIndex = 0, itemsPerPage = 20000)
+        httr2::req_url_query(q = pattern, startIndex = 0, itemsPerPage = 10)
 
-      resp <- self$send_request(req)$data
-
-      datasets <- lapply(resp$features, function(x) {
-        meta <- x$metadata[["_source"]]
-
-        abs <- meta[["abstract"]]
-        if (!is.null(abs)) {
-          doi <- regmatches(abs, regexpr("https://doi.org/[[:alnum:]\\-]+", abs))
-          if (length(doi) == 0) {
-            doi <- NULL
-          }
-
-          abstract <- gsub("https://doi.org/[[:alnum:]\\-]+", "", abs)
-        } else {
-          doi <- abstract <- NULL
+      tryCatch(
+        {
+          paginator <- Paginator$new(self, "GET")
+          datasets <- paginator$run(req, items_per_page = 10)
+          lapply(datasets, private$extract_dataset_meta)
+        },
+        error = function(err) {
+          stop(paste("Datasets query failed"))
         }
-
-        list(
-          "terms" = x$terms,
-          "dataset_id" = x$dataset_id,
-          "title" = meta[["datasetTitle"]],
-          "abstract" = abstract,
-          "doi" = doi,
-          "thumbnails" = meta[["thumbnails"]]
-        )
-      })
+      )
     },
 
 
@@ -473,6 +457,30 @@ Client <- R6::R6Class("Client",
       df$title <- NULL
       rownames(df) <- NULL
       df
+    },
+    extract_dataset_meta = function(dataset) {
+      meta <- dataset$metadata[["_source"]]
+
+      abs <- meta[["abstract"]]
+      if (!is.null(abs)) {
+        doi <- regmatches(abs, regexpr("https://doi.org/[[:alnum:]\\-]+", abs))
+        if (length(doi) == 0) {
+          doi <- NULL
+        }
+
+        abstract <- gsub("https://doi.org/[[:alnum:]\\-]+", "", abs)
+      } else {
+        doi <- abstract <- NULL
+      }
+
+      list(
+        "terms" = dataset$terms,
+        "dataset_id" = dataset$dataset_id,
+        "title" = meta[["datasetTitle"]],
+        "abstract" = abstract,
+        "doi" = doi,
+        "thumbnails" = meta[["thumbnails"]]
+      )
     }
   )
 )
