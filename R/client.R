@@ -289,7 +289,7 @@ Client <- R6::R6Class("Client",
 
       tryCatch(
         {
-          paginator <- Paginator$new(self)
+          paginator <- Paginator$new(self, request_type = "POST")
           results <- paginator$run(req, limit)
 
           SearchResults$new(self, results, query$dataset_id)
@@ -398,8 +398,8 @@ Client <- R6::R6Class("Client",
             data[[param]][["items"]][[3]]$maximum,
             data[[param]][["items"]][[4]]$maximum
           )
-          obj <- c(obj, setNames(list(extent), "bbox"))
-          obj$bbox <- list(extent)
+          # obj <- c(obj, setNames(list(extent), "bbox"))
+          # obj$bbox <- list(extent)
           next
         }
 
