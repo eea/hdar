@@ -31,7 +31,6 @@ SearchResults <- R6::R6Class("SearchResults",
     #' @param selected_indexes Optional; indices of the specific results to download.
     #' @param stop_at_failure Optional; controls whether the download process of multiple files should immediately stop upon encountering the first failure.
     #' @return Nothing returned but downloaded files are saved at the specified location.
-    #' @importFrom urltools url_parse
     #' @export
     download = function(output_dir = ".", selected_indexes, stop_at_failure = TRUE) {
       print("[Download] Start")
@@ -56,33 +55,14 @@ SearchResults <- R6::R6Class("SearchResults",
 
         tryCatch(
           {
-            # try to fetch the file extension form $location, assume zip if NULL
-            fex <- private$get_file_extention(r$id)
-            if (is.null(fex)) {
-              location_url <- urltools::url_parse(r$properties$location)
-              fex <- private$get_file_extention(location_url$path)
-              if (is.null(fex)) {
-                if (i == 1) {
-                  warning("No file extensions could be detected, assuming it is a 'zip'")
-                }
-                fex <- ".zip"
-              }
-            }
-
-            local_path <- paste0(output_dir, "/", r$id, fex)
-            final_path <- if (file.exists(local_path)) {
-              private$generate_new_filename(local_path)
-            } else {
-              local_path
-            }
-
             download_id <- private$get_download_id(r)
             is_ready <- private$ensure_download_is_ready(download_id)
             if (is_ready) {
-              private$download_resource(download_id, final_path)
+              private$download_resource(download_id, output_dir)
             }
           },
           error = function(err) {
+            print(err)
             print("[!] An error occurred during the download.")
             should_break <<- stop_at_failure
           }
@@ -125,48 +105,31 @@ SearchResults <- R6::R6Class("SearchResults",
       resp <- private$client$send_request(req)$data
       resp$download_id
     },
-    get_file_extention = function(filename) {
-      filename <- basename(filename)
-      # Check if the file contains a dot and is not a hidden file without an extension
-      if (grepl("\\.", filename) && !grepl("^\\.", filename)) {
-        # we might have ot work with a look up-table to properly detect and extract extnetions.
-        ext <- sub(".*\\.([a-zA-Z0-9]+)$", "\\1", filename) # [a-zA-Z0-9]{1,4}
-        if (nchar(ext) > 1 && nchar(ext) <= 4) # minimum nchar 2, max 4.
-          {
-            return(paste0(".", ext))
-          } else {
-          return(NULL)
-        }
-      } else {
-        return(NULL)
-      }
-    },
-    download_resource = function(download_id, local_path) {
+    download_resource = function(download_id, output_dir) {
       url <- paste0(private$client$apiUrl, "/dataaccess/download/", download_id)
       req <- httr2::request(url) %>%
         httr2::req_method("GET")
 
-      resp <- private$client$send_request(req, path = local_path)
-      if (resp$status_code == 200) {
-        return(NA)
+
+      resp <- private$client$send_request(req, TRUE)
+      if (resp$status_code != 200) {
+        print(resp)
+        stop(paste("Couldn't download: ", url))
       }
 
-      stop(paste("Couldn't download: ", url))
-    },
-    # Function to generate a new filename if the original exists
-    generate_new_filename = function(path) {
-      base <- tools::file_path_sans_ext(path)
-      ext <- tools::file_ext(path)
-
-      i <- 1
-      new_path <- sprintf("%s_%d.%s", base, i, ext)
-
-      while (file.exists(new_path)) {
-        i <- i + 1
-        new_path <- sprintf("%s_%d.%s", base, i, ext)
+      # Extract the file name from the Content-Disposition header
+      content_disposition <- httr2::resp_headers(resp, "content-disposition")
+      filename <- if (!is.null(content_disposition)) {
+        gsub('.*filename="?([^"]+)"?.*', '\\1', content_disposition)
+      } else {
+        "downloaded_file"
       }
 
-      new_path
+      # Write the content to a file
+      file_path <- file.path(output_dir, filename)
+      writeBin(httr2::resp_body_raw(resp), file_path)
+
+      return(NA)
     }
   )
 )

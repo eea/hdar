@@ -64,10 +64,10 @@ Client <- R6::R6Class("Client",
     #' @description Sends a specified request to the server and returns the response.
     #'
     #' @param req A request object or list representing the HTTP request.
-    #' @param path Optional character string specifying the local path where the response should be saved.
+    #' @param raw_response Optional logical value indicating whether the raw response should be returned instead of the parsed body.
     #' @return A response object containing the server's response.
     #' @export
-    send_request = function(req, path = NULL) {
+    send_request = function(req, raw_response = FALSE) {
       if (is.null(private$auth$token())) {
         private$auth$get_token()
       }
@@ -79,7 +79,7 @@ Client <- R6::R6Class("Client",
 
       tryCatch(
         {
-          req %>% httr2::req_perform(path = path)
+          req %>% httr2::req_perform()
         },
         error = function(err) {
           if (httr2::last_response()$status_code == 403 || httr2::last_response()$status_code == 401) {
@@ -88,7 +88,7 @@ Client <- R6::R6Class("Client",
 
             tryCatch(
               {
-                req %>% httr2::req_perform(path = path)
+                req %>% httr2::req_perform()
               },
               error = function(err) {
                 stop(paste("Network error. Reason: ", err))
@@ -101,6 +101,11 @@ Client <- R6::R6Class("Client",
       )
 
       resp <- httr2::last_response()
+
+      if (raw_response) {
+        return(resp)
+      }
+
       if (resp$status_code == 200 || resp$status_code == 201 || resp$status_code == 202) {
         content_type <- httr2::resp_content_type(resp)
         data <- NA

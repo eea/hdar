@@ -95,7 +95,7 @@ Character string representing the newly generated token.
 \subsection{Method \code{send_request()}}{
 Sends a specified request to the server and returns the response.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Client$send_request(req, path = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Client$send_request(req, raw_response = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -103,7 +103,7 @@ Sends a specified request to the server and returns the response.
 \describe{
 \item{\code{req}}{A request object or list representing the HTTP request.}
 
-\item{\code{path}}{Optional character string specifying the local path where the response should be saved.}
+\item{\code{raw_response}}{Optional logical value indicating whether the raw response should be returned instead of the parsed body.}
 }
 \if{html}{\out{</div>}}
 }
