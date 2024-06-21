@@ -12,6 +12,10 @@ SearchResults
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{results}}{Stores the search results data.}
+
+\item{\code{total_count}}{Stores the total count of results' element.}
+
+\item{\code{total_size}}{Stores the total size of results}
 }
 \if{html}{\out{</div>}}
 }

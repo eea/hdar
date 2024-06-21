@@ -284,7 +284,7 @@ Client <- R6::R6Class("Client",
     #' @importFrom stringr str_detect
     #' @export
     search = function(query, limit = NULL) {
-      json_query <- jsonlite::toJSON(query, pretty = TRUE, auto_unbox = TRUE)
+      json_query <- jsonlite::toJSON(query, pretty = TRUE, auto_unbox = FALSE)
       json_query <- strip_off_template_placeholders(json_query)
 
       url <- paste0(self$apiUrl, "/dataaccess/search")
@@ -297,7 +297,12 @@ Client <- R6::R6Class("Client",
           paginator <- Paginator$new(self, request_type = "POST")
           results <- paginator$run(req, limit)
 
-          SearchResults$new(self, results, query$dataset_id)
+          search_results <- SearchResults$new(self, results, query$dataset_id)
+
+          print(paste("Found", search_results$total_count, "files"))
+          print(paste("Total Size", humanize::natural_size(search_results$total_size)))
+
+          search_results
         },
         error = function(err) {
           stop(paste("Search query failed"))

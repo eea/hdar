@@ -12,6 +12,12 @@ SearchResults <- R6::R6Class("SearchResults",
     #' @field results Stores the search results data.
     results = NULL,
 
+    #' @field total_count Stores the total count of results' element.
+    total_count = NULL,
+
+    #' @field total_size Stores the total size of results
+    total_size = NULL,
+
     #' @description Initializes a new SearchResults object with the specified client, results, and dataset identifier.
     #'
     #' @param client An object containing the API client used to interact with the dataset.
@@ -23,6 +29,11 @@ SearchResults <- R6::R6Class("SearchResults",
       private$client <- client
       private$dataset_id <- dataset_id
       self$results <- results
+
+      self$total_count <- length(sapply(results, FUN = function(x) {
+        x$id
+      }))
+      self$total_size <- sum(sapply(results, function(x) if (!is.null(x$properties$size)) x$properties$size else 0))
     },
 
     #' @description
@@ -33,6 +44,10 @@ SearchResults <- R6::R6Class("SearchResults",
     #' @return Nothing returned but downloaded files are saved at the specified location.
     #' @export
     download = function(output_dir = ".", selected_indexes, stop_at_failure = TRUE) {
+      if (self$total_count == 0 || !private$prompt_user_confirmation(self$total_size)) {
+        return(NULL)
+      }
+
       print("[Download] Start")
 
       if (!dir.exists(output_dir)) {
@@ -72,6 +87,7 @@ SearchResults <- R6::R6Class("SearchResults",
     }
   ),
   private = list(
+    LARGE_DOWNLOAD_SIZE = 100 * 1024 * 1024, # 100MB
     client = NULL,
     dataset_id = NULL,
     check_status = function(download_id) {
@@ -120,7 +136,7 @@ SearchResults <- R6::R6Class("SearchResults",
       # Extract the file name from the Content-Disposition header
       content_disposition <- httr2::resp_headers(resp, "content-disposition")
       filename <- if (!is.null(content_disposition)) {
-        gsub('.*filename="?([^"]+)"?.*', '\\1', content_disposition)
+        gsub('.*filename="?([^"]+)"?.*', "\\1", content_disposition)
       } else {
         "downloaded_file"
       }
@@ -130,6 +146,22 @@ SearchResults <- R6::R6Class("SearchResults",
       writeBin(httr2::resp_body_raw(resp), file_path)
 
       return(NA)
+    },
+    prompt_user_confirmation = function(total_size) {
+      if (total_size >= private$LARGE_DOWNLOAD_SIZE) {
+        repeat {
+          cat("The total size is", humanize::natural_size(total_size), ". Do you want to proceed? (Y/N): ")
+          answer <- tolower(readLines(n = 1))
+          if (answer %in% c("y", "n")) {
+            return(answer == "y")
+          } else {
+            cat("Invalid input. Please enter 'Y' or 'N'.\n")
+            return(TRUE)
+          }
+        }
+      } else {
+        return(TRUE)
+      }
     }
   )
 )
