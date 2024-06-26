@@ -408,8 +408,7 @@ Client <- R6::R6Class("Client",
             data[[param]][["items"]][[3]]$maximum,
             data[[param]][["items"]][[4]]$maximum
           )
-          # obj <- c(obj, setNames(list(extent), "bbox"))
-          # obj$bbox <- list(extent)
+          obj$bbox <- extent
           next
         }
 
