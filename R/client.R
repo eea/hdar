@@ -282,6 +282,7 @@ Client <- R6::R6Class("Client",
     #' @seealso \code{\link[=SearchResults]{SearchResults}} for details on the returned object.
     #' @importFrom httr2 request req_method req_body_json
     #' @importFrom stringr str_detect
+    #' @importFrom humanize natural_size
     #' @export
     search = function(query, limit = NULL) {
       json_query <- jsonlite::toJSON(query, pretty = TRUE, auto_unbox = FALSE)
