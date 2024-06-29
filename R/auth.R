@@ -28,6 +28,9 @@ Auth <- R6::R6Class("Auth", # nolint: object_name_linter.
     #' @return A character string representing the retrieved token.
     #' @export
     token = function() {
+      if (is.null(private$token_value)) {
+        self$get_token()
+      }
       private$token_value
     },
 
