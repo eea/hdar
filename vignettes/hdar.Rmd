@@ -126,7 +126,7 @@ To search for data in the HDA service, you need to create a query template. Manu
 
 The `generate_query_template` function generates a template of a query for a specified dataset. This function fetches information about existing parameters, default values, etc., from the `/queryable` endpoint of the HDA service.
 
-#### Example: Generating a Query Template
+#### Example: Generating a Query
 
 Here is an example of how to generate a query template for the dataset with the ID "EO:EEA:DAT:CLMS_HRVPP_ST":
 
@@ -193,11 +193,9 @@ $bbox
 [1] -180  -90  180   90
 ```
 
-## Using the Generated Query Template
+## Modify and use the generated Query Template
 
 You can and should customize the generated query template to fit your specific needs. Fields starting with '\_\_###' are placeholder values indicating possible values, but if unchanged it will be stripped off before sending the query to the HDA service.
-
-#### Example: Using the Query Template in a Search
 
 Here is an example of how to use the query template in a search:
 
@@ -251,8 +249,6 @@ To search for data in the HDA service, you can use the `search` function provide
 
 The `search` function takes a query and an optional limit parameter, which specifies the maximum number of results you want to retrieve. The function only searches for data and does not download it. The output of this function is an instance of the `SearchResults` class.
 
-#### Example: Searching for Data
-
 Here is an example of how to search for data using a query and limit the results to 5:
 
 ```{r, eval = FALSE}
@@ -269,11 +265,9 @@ sapply(matches$results,FUN = function(x){x$id})
 [9] "ST_20180521T000000_S2_T32TPS-010m_V101_PPI"
 ```
 
-## Downloading the Found Results
+## Downloading the files
 
 The `SearchResults` class has a public field results and a method called download that is responsible for downloading the found data. The `download()` function takes an output directory (which is created if no existing) and the optional parameter `selected_indexes` to specify which files to download.
-
-#### Example: Downloading results
 
 ```{r, eval = FALSE}
 # Assuming 'matches' is an instance of SearchResults obtained from the search
@@ -292,9 +286,7 @@ y
 [1] "[Download] Downloading file 8/9"
 [1] "[Download] Downloading file 9/9"
 [1] "[Download] DONE"
-```
-#### Example: Downloading files
-```{r, eval = FALSE}
+
 # Assuming 'matches' is an instance of SearchResults obtained from the search
 list.files(odir)
 [1] "ST_20180301T000000_S2_T32TPS-010m_V101_PPI.tif" "ST_20180311T000000_S2_T32TPS-010m_V101_PPI.tif"
@@ -305,3 +297,4 @@ list.files(odir)
 
 unlink(odir,recursive = TRUE)
 ```
+
