@@ -9,7 +9,7 @@ Maintainer: Matteo Mattiuzzi <matteo@mattiuzzi.com>
 Description: Download Copernicus data from WEkEO by means of HTTPS REST queries.
 License: EUPL (>= 1.2) | file LICENSE
 Encoding: UTF-8
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Imports:
   R6,
   httr2,
