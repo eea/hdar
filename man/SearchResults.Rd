@@ -57,17 +57,13 @@ SearchResult instance
 \subsection{Method \code{download()}}{
 Downloads resources based on stored results or selected indices of results.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SearchResults$download(
-  output_dir = ".",
-  selected_indexes,
-  stop_at_failure = TRUE
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{SearchResults$download(output_dir, selected_indexes, stop_at_failure = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{output_dir}}{A string specifying the directory where downloaded files will be saved, defaulting to the current directory.}
+\item{\code{output_dir}}{A string specifying the directory where downloaded files will be saved.}
 
 \item{\code{selected_indexes}}{Optional; indices of the specific results to download.}
 
