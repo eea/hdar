@@ -38,17 +38,17 @@ SearchResults <- R6::R6Class("SearchResults",
 
     #' @description
     #' Downloads resources based on stored results or selected indices of results.
-    #' @param output_dir A string specifying the directory where downloaded files will be saved, defaulting to the current directory.
+    #' @param output_dir A string specifying the directory where downloaded files will be saved.
     #' @param selected_indexes Optional; indices of the specific results to download.
     #' @param stop_at_failure Optional; controls whether the download process of multiple files should immediately stop upon encountering the first failure.
     #' @return Nothing returned but downloaded files are saved at the specified location.
     #' @export
-    download = function(output_dir = ".", selected_indexes, stop_at_failure = TRUE) {
+    download = function(output_dir, selected_indexes, stop_at_failure = TRUE) {
       if (self$total_count == 0 || !private$prompt_user_confirmation(self$total_size)) {
         return(NULL)
       }
 
-      print("[Download] Start")
+      message("[Download] Start")
 
       if (!dir.exists(output_dir)) {
         dir.create(output_dir)
@@ -66,7 +66,7 @@ SearchResults <- R6::R6Class("SearchResults",
 
         i <- i + 1
 
-        print(paste0("[Download] Downloading file ", i, "/", length(resources_to_download)))
+        message(paste0("[Download] Downloading file ", i, "/", length(resources_to_download)))
 
         tryCatch(
           {
@@ -77,13 +77,13 @@ SearchResults <- R6::R6Class("SearchResults",
             }
           },
           error = function(err) {
-            print(err)
-            print("[!] An error occurred during the download.")
+            warning(err)
+            warning("[!] An error occurred during the download.")
             should_break <<- stop_at_failure
           }
         )
       }
-      print("[Download] DONE")
+      message("[Download] DONE")
     }
   ),
   private = list(
@@ -129,7 +129,6 @@ SearchResults <- R6::R6Class("SearchResults",
 
       resp <- private$client$send_request(req, TRUE)
       if (resp$status_code != 200) {
-        print(resp)
         stop(paste("Couldn't download: ", url))
       }
 

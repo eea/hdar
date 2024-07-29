@@ -300,8 +300,8 @@ Client <- R6::R6Class("Client",
 
           search_results <- SearchResults$new(self, results, query$dataset_id)
 
-          print(paste("Found", search_results$total_count, "files"))
-          print(paste("Total Size", humanize::natural_size(search_results$total_size)))
+          message(paste("Found", search_results$total_count, "files"))
+          message(paste("Total Size", humanize::natural_size(search_results$total_size)))
 
           search_results
         },
