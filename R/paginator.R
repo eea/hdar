@@ -37,7 +37,8 @@ Paginator <- R6::R6Class("Paginator",
           results
         },
         error = function(err) {
-          stop(paste("Error when getting data. Reason: ", err))
+          error = paste("Error when getting data with paginator", err, sep = "\n")
+          stop(error)
         }
       )
     }

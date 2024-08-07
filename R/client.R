@@ -72,7 +72,6 @@ Client <- R6::R6Class("Client",
         private$auth$get_token()
       }
 
-
       req <- req %>%
         httr2::req_headers(Authorization = paste("Bearer", private$auth$token())) %>%
         httr2::req_retry(max_tries = 3)
@@ -82,7 +81,9 @@ Client <- R6::R6Class("Client",
           req %>% httr2::req_perform()
         },
         error = function(err) {
-          if (httr2::last_response()$status_code == 403 || httr2::last_response()$status_code == 401) {
+          resp <- httr2::last_response()
+
+          if (resp$status_code == 403 || resp$status_code == 401) {
             private$auth$get_token()
             req <- req %>% httr2::req_headers(Authorization = paste("Bearer", private$auth$token()))
 
@@ -91,11 +92,13 @@ Client <- R6::R6Class("Client",
                 req %>% httr2::req_perform()
               },
               error = function(err) {
-                stop(paste("Network error. Reason: ", err))
+                error_message <- private$extract_error_message(resp)
+                stop(paste("Network Error:", error_message, sep = "\n"))
               }
             )
           } else {
-            stop(paste("Network error. Reason: ", err))
+            error_message <- private$extract_error_message(resp)
+            stop(paste("Network Error:", error_message, sep = "\n"))
           }
         }
       )
@@ -114,7 +117,7 @@ Client <- R6::R6Class("Client",
         }
         return(list("data" = data, "status_code" = resp$status_code))
       }
-      stop(httr2::resp_body_json(resp)$detail)
+      stop(paste("Incorrect data: ", httr2::resp_body_json(resp)$detail, sep = "\n"))
     },
 
 
@@ -283,14 +286,13 @@ Client <- R6::R6Class("Client",
     #' @importFrom httr2 request req_method req_body_json
     #' @importFrom stringr str_detect
     #' @export
-    search = function(query, limit = NULL) {
-      json_query <- jsonlite::toJSON(query, pretty = TRUE, auto_unbox = FALSE)
+    search = function(json_query, limit = NULL) {
       json_query <- strip_off_template_placeholders(json_query)
 
       url <- paste0(self$apiUrl, "/dataaccess/search")
       req <- httr2::request(url) %>%
         httr2::req_method("POST") %>%
-        httr2::req_body_json(jsonlite::fromJSON(json_query))
+        httr2::req_body_json(jsonlite::fromJSON(json_query, simplifyVector = FALSE))
 
       tryCatch(
         {
@@ -305,7 +307,8 @@ Client <- R6::R6Class("Client",
           search_results
         },
         error = function(err) {
-          stop(paste("Search query failed"))
+          warning("Search query failed")
+          stop(err)
         }
       )
     },
@@ -490,6 +493,19 @@ Client <- R6::R6Class("Client",
         "doi" = doi,
         "thumbnails" = meta[["thumbnails"]]
       )
+    },
+    extract_error_message = function(resp) {
+      content_type <- httr2::resp_content_type(resp)
+      print(paste("content-type: ", content_type))
+
+      if (grepl("application/json", content_type)) {
+        resp %>%
+          httr2::resp_body_json() %>%
+          jsonlite::toJSON(pretty = TRUE, auto_unbox = TRUE)
+      } else {
+        # For other content types (e.g., text)
+        resp %>% httr2::resp_body_string()
+      }
     }
   )
 )

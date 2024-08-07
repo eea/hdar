@@ -33,7 +33,11 @@ SearchResults <- R6::R6Class("SearchResults",
       self$total_count <- length(sapply(results, FUN = function(x) {
         x$id
       }))
-      self$total_size <- sum(sapply(results, function(x) if (!is.null(x$properties$size)) x$properties$size else 0))
+      if (self$total_count > 0) {
+        self$total_size <- sum(sapply(results, function(x) if (!is.null(x$properties$size)) x$properties$size else 0))
+      } else {
+        self$total_size <- 0
+      }
     },
 
     #' @description
@@ -77,8 +81,7 @@ SearchResults <- R6::R6Class("SearchResults",
             }
           },
           error = function(err) {
-            warning(err)
-            warning("[!] An error occurred during the download.")
+            warning("Error during the downloading:", err, sep = "\n")
             should_break <<- stop_at_failure
           }
         )

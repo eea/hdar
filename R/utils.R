@@ -3,7 +3,7 @@ is_valid_url <- function(url) {
   grepl(url_pattern, url)
 }
 
-PLACEHOLDER_TAG = "__###"
+PLACEHOLDER_TAG <- "__###"
 
 is_placeholder <- function(value) {
   is_single_string(value) && stringr::str_detect(value, paste0("^", PLACEHOLDER_TAG))
@@ -16,7 +16,7 @@ extract_template_param_string_default_value <- function(meta) {
     value <- meta$default
   }
 
-  if ((is.null(value) || value == '') && exists("type", where = meta)) {
+  if ((is.null(value) || value == "") && exists("type", where = meta)) {
     if (exists("pattern", where = meta)) {
       value <- paste(PLACEHOLDER_TAG, "Value of", meta$type, "type with pattern:", meta$pattern)
     } else {
@@ -54,7 +54,7 @@ extract_template_param_default_value <- function(meta) {
 strip_off_template_placeholders <- function(template) {
   output <- {}
 
-  t <- jsonlite::fromJSON(template)
+  t <- jsonlite::fromJSON(template, simplifyVector = FALSE)
   for (param in names(t))
   {
     value <- t[[param]]
@@ -62,7 +62,7 @@ strip_off_template_placeholders <- function(template) {
       output[[param]] <- value
     }
   }
-  jsonlite::toJSON(output, pretty = TRUE, auto_unbox=TRUE)
+  jsonlite::toJSON(output, pretty = TRUE, auto_unbox = TRUE)
 }
 
 is_single_string <- function(input) {
