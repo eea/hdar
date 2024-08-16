@@ -288,11 +288,12 @@ Client <- R6::R6Class("Client",
     #' @export
     search = function(json_query, limit = NULL) {
       json_query <- strip_off_template_placeholders(json_query)
+      query <- jsonlite::fromJSON(json_query, simplifyVector = FALSE)
 
       url <- paste0(self$apiUrl, "/dataaccess/search")
       req <- httr2::request(url) %>%
         httr2::req_method("POST") %>%
-        httr2::req_body_json(jsonlite::fromJSON(json_query, simplifyVector = FALSE))
+        httr2::req_body_json(query)
 
       tryCatch(
         {
