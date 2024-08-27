@@ -279,12 +279,13 @@ Client <- R6::R6Class("Client",
     #' @description
     #' This function performs a search based on a specified query and returns an instance of \code{\link{SearchResults}}.
     #'
-    #' @param query Character string representing the search query.
+    #' @param json_query Character string representing the search query.
     #' @param limit Optional; a number specifying the maximum number of results to return.
     #' @return An instance of the \code{\link{SearchResults}} class containing the search results.
     #' @seealso \code{\link[=SearchResults]{SearchResults}} for details on the returned object.
     #' @importFrom httr2 request req_method req_body_json
     #' @importFrom stringr str_detect
+    #' @importFrom humanize natural_size
     #' @export
     search = function(json_query, limit = NULL) {
       json_query <- strip_off_template_placeholders(json_query)
@@ -497,7 +498,6 @@ Client <- R6::R6Class("Client",
     },
     extract_error_message = function(resp) {
       content_type <- httr2::resp_content_type(resp)
-      print(paste("content-type: ", content_type))
 
       if (grepl("application/json", content_type)) {
         resp %>%
