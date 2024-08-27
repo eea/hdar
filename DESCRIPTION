@@ -9,11 +9,11 @@ Maintainer: Matteo Mattiuzzi <matteo@mattiuzzi.com>
 Description: 
   The `hdar` R package offers seamless access to the 'WEkEO Harmonised Data Access (HDA)' API, 
   enabling users to query, download, and process data efficiently from the HDA platform. 
-  With `hdar`, researchers and data scientists can integrate HDA's extensive datasets 
-  into their R workflows, enhancing their data analysis capabilities. The API documentation 
-  is available at [https://gateway.prod.wekeo2.eu/hda-broker/docs]https://gateway.prod.wekeo2.eu/hda-broker/docs, providing comprehensive 
-  information on the API's functionalities and usage.
-License: EUPL (>= 1.2) 
+  With `hdar`, researchers and data scientists can integrate the extensive datasets of HDA 
+  into their R workflows, enhancing their data analysis capabilities. 
+  Comprehensive information on the functionalities and usage of the API is available at 
+  <https://gateway.prod.wekeo2.eu/hda-broker/docs>.
+License: EUPL (>= 1.2) + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.3.2
 Imports:
