@@ -13,7 +13,7 @@ Description:
   into their R workflows, enhancing their data analysis capabilities. 
   Comprehensive information on the functionalities and usage of the API is available at 
   <https://gateway.prod.wekeo2.eu/hda-broker/docs>.
-License: EUPL (>= 1.2) + file LICENSE
+License: EUPL (>= 1.2)
 Encoding: UTF-8
 RoxygenNote: 7.3.2
 Imports:
