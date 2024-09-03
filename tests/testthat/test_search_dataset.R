@@ -4,6 +4,7 @@ library("hdar")
 test_that("Search - Results", {
   client <- Client$new()
   found_datasets <- client$datasets()
+  # print(found_datasets)
 
   expect_no_error(found_datasets)
   expect_gte(length(found_datasets), 0)

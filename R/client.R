@@ -19,11 +19,16 @@ Client <- R6::R6Class("Client",
     #' @param user Character string representing the username for authentication.
     #' @param password Character string representing the password for authentication.
     #' @param save_credentials A logical value indicating whether to save the credentials to a configuration file. Default is FALSE.
+    #' @param credentials_dir Directory where the credentials file will be saved. Defaults to `"./"`.
     #' @return An instance of the `Client` class.
     #' @export
-    initialize = function(user, password, save_credentials = FALSE) {
+    initialize = function(user, password, save_credentials = FALSE, credentials_dir = "./") {
+
+      dir <- if (is.null(credentials_dir) || trimws(credentials_dir) == "") "./" else credentials_dir
+      private$credentials_file_path <- paste0(dir, ".hdarc")
+
       if (missing(user) || missing(password)) {
-        # read from ~/.hdrc file
+        # read from file
         cred <- private$read_credentials_from_file()
         user <- cred[1]
         password <- cred[2]
@@ -358,12 +363,14 @@ Client <- R6::R6Class("Client",
   ),
   private = list(
     auth = NULL,
+    credentials_file_path = NULL,
     read_credentials_from_file = function() {
-      if (!file.exists("~/.hdarc")) {
+
+      if (!file.exists(private$credentials_file_path)) {
         return(c("", ""))
       }
 
-      file <- readLines("~/.hdarc")
+      file <- readLines(private$credentials_file_path)
       user <- private$read_credential_property_from_file(file, "user")
       password <- private$read_credential_property_from_file(file, "password")
 
@@ -379,11 +386,11 @@ Client <- R6::R6Class("Client",
       prop_value <- gsub(regexp, "\\1", file[idx]) %>% trimws()
     },
     save_credentials_to_file = function(user, pwd) {
-      if (!file.exists("~/.hdarc")) {
-        file.create("~/.hdarc")
+      if (!file.exists(private$credentials_file_path)) {
+        file.create(private$credentials_file_path)
       }
 
-      fileConn <- file("~/.hdarc")
+      fileConn <- file(private$credentials_file_path)
       writeLines(
         c(
           paste0("user:", user),
