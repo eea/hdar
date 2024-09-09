@@ -19,13 +19,12 @@ Client <- R6::R6Class("Client",
     #' @param user Character string representing the username for authentication.
     #' @param password Character string representing the password for authentication.
     #' @param save_credentials A logical value indicating whether to save the credentials to a configuration file. Default is FALSE.
-    #' @param credentials_dir Directory where the credentials file will be saved. Defaults to `"./"`.
     #' @return An instance of the `Client` class.
     #' @export
-    initialize = function(user, password, save_credentials = FALSE, credentials_dir = "./") {
+    initialize = function(user, password, save_credentials = FALSE) {
 
-      dir <- if (is.null(credentials_dir) || trimws(credentials_dir) == "") "./" else credentials_dir
-      private$credentials_file_path <- paste0(dir, ".hdarc")
+
+      private$credentials_file_path <- "~/.hdarc"
 
       if (missing(user) || missing(password)) {
         # read from file
