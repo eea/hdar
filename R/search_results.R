@@ -160,7 +160,7 @@ SearchResults <- R6::R6Class("SearchResults",
     prompt_user_confirmation = function(total_size) {
       if (total_size >= private$LARGE_DOWNLOAD_SIZE) {
         repeat {
-          message("The total size is", humanize::natural_size(total_size), ". Do you want to proceed? (Y/N): ")
+          message("The total size is ", humanize::natural_size(total_size), ". Do you want to proceed? (Y/N): ")
           answer <- tolower(readLines(n = 1))
           if (answer %in% c("y", "n")) {
             return(answer == "y")
