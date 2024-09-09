@@ -3,7 +3,7 @@
 #  # install.packages("hdar")
 #  # or
 #  # devtools::install_github("eea/hdar@develop")
-#  
+#
 #  # Load the hdar package
 #  library(hdar)
 
@@ -11,7 +11,7 @@
 #  # Define your username and password
 #  username <- "your_username"
 #  password <- "your_password"
-#  
+#
 #  # Create an instance of the Client class and save credentials to a config file
 #  # The save_credentials parameter is optional and defaults to FALSE
 #  client <- Client$new(username, password, save_credentials = TRUE)
@@ -34,7 +34,7 @@
 #  # Assuming 'client' is already created and authenticated
 #  pattern <- "climate"
 #  filtered_datasets <- client$datasets(pattern)
-#  print(filtered_datase
+#  print(filtered_datase)
 
 ## ----eval = FALSE-------------------------------------------------------------
 #  # Assuming 'client' is already created and authenticated
@@ -44,7 +44,7 @@
 ## ----eval = FALSE-------------------------------------------------------------
 #  # Modify the query template as needed
 #  query_template$cloudCover <- "10"
-#  
+#
 #  # Perform the search using the modified query template
 #  matches <- client$search(query_template)
 #  print(sapply(matches$results, function(x) {
