@@ -12,9 +12,9 @@ vignette: >
 
 ### Important Notice
 
-<div style="border: 1px solid orange; padding: 10px; background-color: #fff3cd; color: #856404;">
-  <strong>Notice:</strong> We are currently performing maintenance and improvements on the Backend service. You may experience intermittent slow responses or minor issues. Rest assured, our team is working hard to enhance your experience. Thank you for your patience!
-</div>
+::: {style="border: 1px solid orange; padding: 10px; background-color: #fff3cd; color: #856404;"}
+<strong>Notice:</strong> We are currently performing maintenance and improvements on the Backend service. You may experience intermittent slow responses or minor issues. Rest assured, our team is working hard to enhance your experience. Thank you for your patience!
+:::
 
 # Introduction
 
@@ -78,7 +78,6 @@ Once the client is created, you can check if it has been authenticated properly 
 ```{r, eval=FALSE}
 # Example method to check authentication by getting the auth token
 client$get_token()
-print(client$token())
 ```
 
 By using one of these methods, you can securely authenticate with the HDA service and start making requests.
@@ -93,8 +92,8 @@ The basic usage of the datasets method is straightforward. You can retrieve a li
 
 ```{r, eval=FALSE}
 # Assuming 'client' is already created and authenticated
+# client <- Client$new()
 all_datasets <- client$datasets()
-print(all_datasets)
 ```
 
 ## Filtering Datasets
@@ -103,9 +102,18 @@ You can also filter the datasets by providing a text pattern. This is useful whe
 
 ```{r, eval=FALSE}
 # Assuming 'client' is already created and authenticated
-pattern <- "climate"
+# client <- Client$new()
+
+pattern <- "Seasonal Trajectories"
+# client <- Client$new()
+
+pattern <- "Seasonal Trajectories"
 filtered_datasets <- client$datasets(pattern)
-print(filtered_datase
+
+# list dataset IDs
+sapply(filtered_datasets,FUN = function(x){x$dataset_id})
+[1] "EO:EEA:DAT:CLMS_HRVPP_VPP-LAEA" "EO:EEA:DAT:CLMS_HRVPP_ST"     
+[3] "EO:EEA:DAT:CLMS_HRVPP_ST-LAEA" "EO:EEA:DAT:CLMS_HRVPP_VPP"
 ```
 
 ## Understanding the Results
@@ -118,58 +126,131 @@ To search for data in the HDA service, you need to create a query template. Manu
 
 ## Basic Usage
 
-The generate_query_template function generates a template of a query for a specified dataset. This function fetches information about existing parameters, default values, etc., from the `/queryable` endpoint of the HDA service.
+The `generate_query_template` function generates a template of a query for a specified dataset. This function fetches information about existing parameters, default values, etc., from the `/queryable` endpoint of the HDA service. The `generate_query_template` function generates a template of a query for a specified dataset. This function fetches information about existing parameters, default values, etc., from the `/queryable` endpoint of the HDA service.
 
-#### Example: Generating a Query Template
+#### Example: Generating a Query
 
-Here is an example of how to generate a query template for the dataset with the ID "EO:CRYO:DAT:HRSI:FSC":
+Here is an example of how to generate a query template for the dataset with the ID "EO:EEA:DAT:CLMS_HRVPP_ST":
 
 ```{r, eval = FALSE}
-# Assuming 'client' is already created and authenticated
-query_template <- client$generate_query_template("EO:CRYO:DAT:HRSI:FSC")
-print(query_template)
-```
-
-## Understanding the Query Template
-
-The generated query template includes fields with descriptive placeholder values where default values are not specified. These placeholders provide hints about the expected value format.
-
-#### Example Query Template
-
-```{json}
+# client <- Client$new()
+query_template <- client$generate_query_template("EO:EEA:DAT:CLMS_HRVPP_ST")
+query_template
 {
-  "dataset_id": "EO:CRYO:DAT:HRSI:FSC",
-  "cloudCover": "__### Value of string type with pattern: ^[0-9]*$",
-  "productIdentifier": "__### Value of string type with pattern: ^.*$",
-  "q": "__### Value of string type with pattern: ^.*$",
-  "observed_start": "2021-01-01T00:00:00.000Z",
-  "observed_end": "__### Value of string",
-  "published_start": "__### Value of string",
-  "published_end": "__### Value of string"
+  "dataset_id": "EO:EEA:DAT:CLMS_HRVPP_ST",
+  "uid": "__### Value of string type with pattern: [\\w-]+",
+  "productType": "PPI",
+  "platformSerialIdentifier": "S2A, S2B",
+  "tileId": "__### Value of string type with pattern: [\\w-]+",
+  "productVersion": "__### Value of string type with pattern: [\\w-]+",
+  "resolution": "10",
+  "processingDate": "__### Value of string",
+  "start": "__### Value of string",
+  "end": "__### Value of string",
+  "bbox": [
+    -180,
+    -90,
+    180,
+    90
+  ]
 }
 ```
 
-## Using the Generated Query Template
 
-You can and should customize the generated query template to fit your specific needs. You can remove any unnecessary parameters and set values for the ones you need. If you decide not to edit the placeholder values and use the generated query template directly in the search function, the fields with placeholder values (the ones starting with \_\_###) will be stripped off before sending the query to the HDA service.
+## Modify and use the generated Query Template
 
-#### Example: Using the Query Template in a Search
+You can and should customize the generated query template to fit your specific needs. Fields starting with `__###` are placeholders indicating possible values. If these placeholders are left unchanged, they will be automatically removed before sending the query to the HDA service.
+
+To modify the query, it is often easier to transform the JSON into an R list using the `jsonlite::fromJSON()` function:
+
+```{r, eval = FALSE}
+# convert to list for easier manipulation in R
+library(jsonlite)
+query_template <- fromJSON(query_template)
+query_template
+$dataset_id
+[1] "EO:EEA:DAT:CLMS_HRVPP_ST"
+
+$uid
+[1] "__### Value of string type with pattern: [\\w-]+"
+
+$productType
+[1] "PPI"
+
+$platformSerialIdentifier
+[1] "S2A, S2B"
+
+$tileId
+[1] "__### Value of string type with pattern: [\\w-]+"
+
+$productVersion
+[1] "__### Value of string type with pattern: [\\w-]+"
+
+$resolution
+[1] "10"
+
+$processingDate
+[1] "__### Value of string"
+
+$start
+[1] "__### Value of string"
+
+$end
+[1] "__### Value of string"
+
+$bbox
+[1] -180  -90  180   90
+```
 
 Here is an example of how to use the query template in a search:
 
 ```{r, eval = FALSE}
-# Modify the query template as needed
-query_template$cloudCover <- "10"
+# set a new bbox
+query_template$bbox <- c(11.1090, 46.6210, 11.2090, 46.7210)
 
-# Perform the search using the modified query template
-matches <- client$search(query_template)
-print(sapply(matches$results, function(x) {
-  list(
-    "id" = x$id,
-    "size" = x$properties$size,
-    "location" = x$properties$location
-  )
-}))
+# limit the time range
+query_template$start <- "2018-03-01T00:00:00.000Z"
+query_template$end   <- "2018-05-31T00:00:00.000Z"
+query_template
+$dataset_id
+[1] "EO:EEA:DAT:CLMS_HRVPP_ST"
+
+$uid
+[1] "__### Value of string type with pattern: [\\w-]+"
+
+$productType
+[1] "PPI"
+
+$platformSerialIdentifier
+[1] "S2A, S2B"
+
+$tileId
+[1] "__### Value of string type with pattern: [\\w-]+"
+
+$productVersion
+[1] "__### Value of string type with pattern: [\\w-]+"
+
+$resolution
+[1] "10"
+
+$processingDate
+[1] "__### Value of string"
+
+$start
+[1] "2018-03-01T00:00:00.000Z"
+
+$end
+[1] "2018-05-31T00:00:00.000Z"
+
+$bbox
+[1] 11.109 46.621 11.209 46.721
+```
+
+Once you have made the necessary modifications, you can convert the list back to JSON format with the `jsonlite::toJSON()` function. It's crucial to use the `auto_unbox = TRUE` flag when converting back to JSON. This ensures that the JSON is correctly formatted, particularly for arrays with a single element, due to the way `jsonlite` handles serialization.
+
+```{r, eval = FALSE}
+# convert to JSON format
+query_template <- toJSON(query_template, auto_unbox = TRUE)
 ```
 
 # Searching and Downloading Data
@@ -180,33 +261,51 @@ To search for data in the HDA service, you can use the `search` function provide
 
 The `search` function takes a query and an optional limit parameter, which specifies the maximum number of results you want to retrieve. The function only searches for data and does not download it. The output of this function is an instance of the `SearchResults` class.
 
-#### Example: Searching for Data
-
 Here is an example of how to search for data using a query and limit the results to 5:
 
 ```{r, eval = FALSE}
 # Assuming 'client' is already created and authenticated, 'query' is defined
-matches <- client$search(query, 5)
-print(matches$results)
+matches <- client$search(query_template)
+[1] "Found 9 files"
+[1] "Total Size 1.8 GB"
+
+sapply(matches$results,FUN = function(x){x$id})
+[1] "ST_20180301T000000_S2_T32TPS-010m_V101_PPI" "ST_20180311T000000_S2_T32TPS-010m_V101_PPI"
+[3] "ST_20180321T000000_S2_T32TPS-010m_V101_PPI" "ST_20180401T000000_S2_T32TPS-010m_V101_PPI"
+[5] "ST_20180411T000000_S2_T32TPS-010m_V101_PPI" "ST_20180421T000000_S2_T32TPS-010m_V101_PPI"
+[7] "ST_20180501T000000_S2_T32TPS-010m_V101_PPI" "ST_20180511T000000_S2_T32TPS-010m_V101_PPI"
+[9] "ST_20180521T000000_S2_T32TPS-010m_V101_PPI"
 ```
 
-## Downloading the Found Results
+## Downloading the files
 
-The `SearchResults` class has a public field results and a method called download that is responsible for downloading the found data. The `download()` function takes an output directory and an optional parameter to specify which results to download.
-
-#### Example: Downloading All Results
+The `SearchResults` class has a public field `results` and a method called `download` that is responsible for downloading the found data. The `download()` function takes an output directory (which is created if it doesn't already exist) and includes an optional `force` parameter. When `force` is set to `TRUE`, the function will re-download the files even if they already exist in the output directory, overwriting the existing files. If `force` is set to `FALSE` (the default), the function will skip downloading files that already exist, saving time and bandwidth.
 
 ```{r, eval = FALSE}
 # Assuming 'matches' is an instance of SearchResults obtained from the search
-matches$download("~/downloads")
-```
+odir <- tempdir()
+matches$download(odir)
+The total size is 1.8 GB . Do you want to proceed? (Y/N):
+y
+[1] "[Download] Start"
+[1] "[Download] Downloading file 1/9"
+[1] "[Download] Downloading file 2/9"
+[1] "[Download] Downloading file 3/9"
+[1] "[Download] Downloading file 4/9"
+[1] "[Download] Downloading file 5/9"
+[1] "[Download] Downloading file 6/9"
+[1] "[Download] Downloading file 7/9"
+[1] "[Download] Downloading file 8/9"
+[1] "[Download] Downloading file 9/9"
+[1] "[Download] DONE"
 
-#### Example: Downloading Selected Results
-
-You can also specify which results to download by providing their indexes:
-
-```{r, eval = FALSE}
 # Assuming 'matches' is an instance of SearchResults obtained from the search
-selected_indexes <- c(1, 3, 5)  # Download only the 1st, 3rd, and 5th results
-matches$download("~/downloads", selected_indexes)
+list.files(odir)
+[1] "ST_20180301T000000_S2_T32TPS-010m_V101_PPI.tif" "ST_20180311T000000_S2_T32TPS-010m_V101_PPI.tif"
+[3] "ST_20180321T000000_S2_T32TPS-010m_V101_PPI.tif" "ST_20180401T000000_S2_T32TPS-010m_V101_PPI.tif"
+[5] "ST_20180411T000000_S2_T32TPS-010m_V101_PPI.tif" "ST_20180421T000000_S2_T32TPS-010m_V101_PPI.tif"
+[7] "ST_20180501T000000_S2_T32TPS-010m_V101_PPI.tif" "ST_20180511T000000_S2_T32TPS-010m_V101_PPI.tif"
+[9] "ST_20180521T000000_S2_T32TPS-010m_V101_PPI.tif"
+
+unlink(odir,recursive = TRUE)
 ```
