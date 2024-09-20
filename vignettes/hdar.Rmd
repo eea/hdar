@@ -29,9 +29,9 @@ To utilize the HDA service and library, you must first register for a WEkEO acco
 To start using the `hdar` package, you first need to install and load it in your R environment.
 
 ```{r, eval = FALSE}
-# Install hdar from CRAN (if available) or GitHub
-# install.packages("hdar")
-# or
+# Install stable hdar from CRAN
+if(!require("hdar")){install.packages("hdar")}
+# or develop version from GitHub
 # devtools::install_github("eea/hdar@develop")
 
 # Load the hdar package
@@ -84,16 +84,18 @@ By using one of these methods, you can securely authenticate with the HDA servic
 
 # Finding Datasets
 
-To interact with the HDA service, you will often need to find datasets available on WEkEO. The Client class provides a method called `datasets` that lists available datasets, optionally filtered by a text pattern.
+WEkEO offers a vast amount of different products. To find what you need the Client class provides a method called `datasets` that lists available datasets, optionally filtered by a text pattern.
 
 ## Basic Usage
 
 The basic usage of the datasets method is straightforward. You can retrieve a list of all datasets available on WEkEO by calling the `datasets` method on an instance of the `Client` class.
 
 ```{r, eval=FALSE}
-# Assuming 'client' is already created and authenticated
-# client <- Client$new()
+# retrieving the full list can take about 2 minutes!
 all_datasets <- client$datasets()
+
+# list all datasets IDs on WEkEO
+sapply(filtered_datasets,FUN = function(x){x$dataset_id})
 ```
 
 ## Filtering Datasets
@@ -101,19 +103,37 @@ all_datasets <- client$datasets()
 You can also filter the datasets by providing a text pattern. This is useful when you are looking for datasets that match a specific keyword or phrase.
 
 ```{r, eval=FALSE}
-# Assuming 'client' is already created and authenticated
-# client <- Client$new()
-
-pattern <- "Seasonal Trajectories"
-# client <- Client$new()
-
 pattern <- "Seasonal Trajectories"
 filtered_datasets <- client$datasets(pattern)
 
 # list dataset IDs
 sapply(filtered_datasets,FUN = function(x){x$dataset_id})
-[1] "EO:EEA:DAT:CLMS_HRVPP_VPP-LAEA" "EO:EEA:DAT:CLMS_HRVPP_ST"     
-[3] "EO:EEA:DAT:CLMS_HRVPP_ST-LAEA" "EO:EEA:DAT:CLMS_HRVPP_VPP"
+[1] "EO:EEA:DAT:CLMS_HRVPP_VPP-LAEA" "EO:EEA:DAT:CLMS_HRVPP_ST"       "EO:EEA:DAT:CLMS_HRVPP_ST-LAEA" 
+[4] "EO:EEA:DAT:CLMS_HRVPP_VPP" 
+
+pattern <- "Baltic"
+filtered_datasets <- client$datasets(pattern)
+
+# list dataset IDs
+sapply(filtered_datasets,FUN = function(x){x$dataset_id})
+ [1] "EO:MO:DAT:BALTICSEA_ANALYSISFORECAST_BGC_003_007:cmems_mod_bal_bgc-pp_anfc_P1D-i_202311"               
+ [2] "EO:MO:DAT:NWSHELF_MULTIYEAR_PHY_004_009:cmems_mod_nws_phy-sst_my_7km-2D_PT1H-i_202112"                 
+ [3] "EO:MO:DAT:OCEANCOLOUR_BAL_BGC_L4_MY_009_134:cmems_obs-oc_bal_bgc-plankton_my_l4-multi-1km_P1M_202211"  
+ [4] "EO:MO:DAT:SST_BAL_PHY_SUBSKIN_L4_NRT_010_034:cmems_obs-sst_bal_phy-subskin_nrt_l4_PT1H-m_202211"       
+ [5] "EO:MO:DAT:BALTICSEA_MULTIYEAR_PHY_003_011:cmems_mod_bal_phy_my_P1Y-m_202303"                           
+ [6] "EO:MO:DAT:OCEANCOLOUR_BAL_BGC_L3_NRT_009_131:cmems_obs-oc_bal_bgc-transp_nrt_l3-olci-300m_P1D_202207"  
+ [7] "EO:MO:DAT:BALTICSEA_MULTIYEAR_BGC_003_012:cmems_mod_bal_bgc_my_P1Y-m_202303"                           
+ [8] "EO:MO:DAT:SST_BAL_SST_L4_REP_OBSERVATIONS_010_016:DMI_BAL_SST_L4_REP_OBSERVATIONS_010_016_202012"      
+ [9] "EO:MO:DAT:BALTICSEA_ANALYSISFORECAST_PHY_003_006:cmems_mod_bal_phy_anfc_PT15M-i_202311"                
+[10] "EO:MO:DAT:OCEANCOLOUR_BAL_BGC_L3_MY_009_133:cmems_obs-oc_bal_bgc-plankton_my_l3-multi-1km_P1D_202207"  
+[11] "EO:MO:DAT:SST_BAL_PHY_L3S_MY_010_040:cmems_obs-sst_bal_phy_my_l3s_P1D-m_202211"                        
+[12] "EO:MO:DAT:SEAICE_BAL_SEAICE_L4_NRT_OBSERVATIONS_011_004:FMI-BAL-SEAICE_THICK-L4-NRT-OBS"               
+[13] "EO:MO:DAT:SEAICE_BAL_PHY_L4_MY_011_019:cmems_obs-si_bal_seaice-conc_my_1km_202112"                     
+[14] "EO:MO:DAT:BALTICSEA_ANALYSISFORECAST_WAV_003_010:cmems_mod_bal_wav_anfc_PT1H-i_202311"                 
+[15] "EO:MO:DAT:BALTICSEA_REANALYSIS_WAV_003_015:dataset-bal-reanalysis-wav-hourly_202003"                   
+[16] "EO:MO:DAT:OCEANCOLOUR_BAL_BGC_L4_NRT_009_132:cmems_obs-oc_bal_bgc-plankton_nrt_l4-olci-300m_P1M_202207"
+[17] "EO:MO:DAT:SST_BAL_SST_L3S_NRT_OBSERVATIONS_010_032:DMI-BALTIC-SST-L3S-NRT-OBS_FULL_TIME_SERIE_201904" 
+
 ```
 
 ## Understanding the Results
@@ -122,7 +142,7 @@ The datasets method returns a list containing datasets and associated informatio
 
 # Creating a Query Template
 
-To search for data in the HDA service, you need to create a query template. Manually creating a query template can be tedious as it involves reading documentation and learning about possible parameters. To simplify this process, the `generate_query_template` function is provided to automate the creation of query templates for a given dataset.
+To search for a specific product, you need to create a query template. You can either use the WEkEO UI, create it manually or use the query template function `generate_query_template` for a given dataset.
 
 ## Basic Usage
 
