@@ -10,11 +10,6 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-### Important Notice
-
-::: {style="border: 1px solid orange; padding: 10px; background-color: #fff3cd; color: #856404;"}
-<strong>Notice:</strong> We are currently performing maintenance and improvements on the Backend service. You may experience intermittent slow responses or minor issues. Rest assured, our team is working hard to enhance your experience. Thank you for your patience!
-:::
 
 # Introduction
 
@@ -139,14 +134,60 @@ sapply(filtered_datasets,FUN = function(x){x$dataset_id})
 ## Understanding the Results
 
 The datasets method returns a list containing datasets and associated information. This information may include dataset names, descriptions, and other metadata.
+```{r, eval=FALSE}
+client$datasets("EO:CRYO:DAT:HRSI:FSC")[[1]]
+
+```
 
 # Creating a Query Template
 
-To search for a specific product, you need to create a query template. You can either use the WEkEO UI, create it manually or use the query template function `generate_query_template` for a given dataset.
+To search for a specific product, you need to create a query template. You can either use the [WEkEO viewer](https://www.wekeo.eu/data?view=viewer) and copy paste the JSON query:
+
+```{r, fig.show='hold', echo=FALSE,out.width="45%"}
+knitr::include_graphics(c("WEkEO_UI_JSON_1.png","WEkEO_UI_JSON_2.png"))
+
+```
+```{r,echo=TRUE}
+query <- '{
+  "dataset_id": "EO:ECMWF:DAT:CEMS_GLOFAS_HISTORICAL",
+  "system_version": [
+    "version_4_0"
+  ],
+  "hydrological_model": [
+    "lisflood"
+  ],
+  "product_type": [
+    "consolidated"
+  ],
+  "variable": [
+    "river_discharge_in_the_last_24_hours"
+  ],
+  "hyear": [
+    "2024"
+  ],
+  "hmonth": [
+    "june"
+  ],
+  "hday": [
+    "01"
+  ],
+  "format": "grib",
+  "bbox": [
+    11.77115199576009,
+    44.56907885098417,
+    13.0263737724595,
+    45.40384015467251
+  ],
+  "itemsPerPage": 200,
+  "startIndex": 0
+}'
+```
+
+or use the query template function `generate_query_template` for a given dataset.
 
 ## Basic Usage
 
-The `generate_query_template` function generates a template of a query for a specified dataset. This function fetches information about existing parameters, default values, etc., from the `/queryable` endpoint of the HDA service. The `generate_query_template` function generates a template of a query for a specified dataset. This function fetches information about existing parameters, default values, etc., from the `/queryable` endpoint of the HDA service.
+The `generate_query_template` function generates a template of a query for a specified dataset. This function fetches information about existing parameters, default values, etc., from the `/queryable` endpoint of the HDA service.
 
 #### Example: Generating a Query
 
@@ -186,7 +227,7 @@ To modify the query, it is often easier to transform the JSON into an R list usi
 ```{r, eval = FALSE}
 # convert to list for easier manipulation in R
 library(jsonlite)
-query_template <- fromJSON(query_template)
+query_template <- fromJSON(query_template, flatten = FALSE)
 query_template
 $dataset_id
 [1] "EO:EEA:DAT:CLMS_HRVPP_ST"
@@ -270,7 +311,7 @@ Once you have made the necessary modifications, you can convert the list back to
 
 ```{r, eval = FALSE}
 # convert to JSON format
-query_template <- toJSON(query_template, auto_unbox = TRUE)
+query_template <- toJSON(query_template, auto_unbox = TRUE) # done forget auto_unbox = TRUE
 ```
 
 # Searching and Downloading Data
