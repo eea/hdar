@@ -13,13 +13,13 @@ vignette: >
 
 # Introduction
 
-The `hdar` R package provides seamless access to the WEkEO Harmonised Data Access (HDA) API, enabling users to efficiently query, download, and process data from the HDA platform.
+The `hdar` R package provides seamless access to the WEkEO Harmonised Data Access (HDA) API, enabling users to programmatically query and download data from within R.
 
 # Accessing the HDA Service
 
-To utilize the HDA service and library, you must first register for a WEkEO account. The HDA service is available at no cost to all WEkEO users. Creating an account allows you full access to our services, ensuring you can leverage the full capabilities of HDA seamlessly. Registration is straightforward and can be completed through the following link: [Register for WEkEO](https://www.wekeo.eu/register). Once your account is set up, you will be able to access the HDA services immediately.
+To utilize the HDA service and library, you must first register for a WEkEO account. Copernicus data and the HDA service are available at no cost to all WEkEO users. Creating an account allows you full access to our services, ensuring you can leverage the full capabilities of HDA seamlessly. Registration is straightforward and can be completed through the following link: [Register for WEkEO](https://www.wekeo.eu/register). Once your account is set up, you will be able to access the HDA services immediately.
 
-# Setup
+# Installation
 
 To start using the `hdar` package, you first need to install and load it in your R environment.
 
