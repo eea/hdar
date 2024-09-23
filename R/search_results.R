@@ -34,7 +34,7 @@ SearchResults <- R6::R6Class("SearchResults",
         x$id
       }))
       if (self$total_count > 0) {
-        self$total_size <- sum(sapply(results, function(x) if (!is.null(x$properties$size)) x$properties$size else 0))
+        self$total_size <- sum(sapply(results, function(x) if (!is.null(x$properties$size) && is.numeric(x$properties$size)) x$properties$size else 0))
       } else {
         self$total_size <- 0
       }

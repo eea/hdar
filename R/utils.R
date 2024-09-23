@@ -9,45 +9,92 @@ is_placeholder <- function(value) {
   is_single_string(value) && stringr::str_detect(value, paste0("^", PLACEHOLDER_TAG))
 }
 
-extract_template_param_string_default_value <- function(meta) {
+extract_param_meta_for_string <- function(meta) {
   value <- NULL
+  comment <- NA
 
   if (exists("default", where = meta)) {
     value <- meta$default
   }
 
-  if ((is.null(value) || value == "") && exists("type", where = meta)) {
+  description <- NA
+  if (exists("type", where = meta)) {
+    description <- paste("Value of", meta$type)
+
     if (exists("pattern", where = meta)) {
-      value <- paste(PLACEHOLDER_TAG, "Value of", meta$type, "type with pattern:", meta$pattern)
-    } else {
-      value <- paste(PLACEHOLDER_TAG, "Value of", meta$type)
+      description <- paste(description, "type with pattern:", meta$pattern)
     }
+    if (exists("format", where = meta)) {
+      description <- paste(description, "type with format:", meta$format)
+    }
+  }
+
+  if (is.null(value) || nchar(value) == 0) {
+    value <- paste(PLACEHOLDER_TAG, description)
+  } else {
+    comment <- description
   }
 
   if (exists("oneOf", where = meta) && length(meta$oneOf) > 0) {
     value <- meta$oneOf[[1]]$const
+
+    possible_values <- sapply(meta$oneOf, function(x) x$const)
+    comment <- paste0("One of: ", paste(possible_values, collapse = ","))
   }
 
-  if (is.null(value) || nchar(value) == 0) NULL else value
+  data.frame(value = value, comment = comment)
 }
 
-extract_template_param_array_default_value <- function(meta) {
+extract_param_meta_for_number <- function(meta) {
+  value <- NULL
+  comment <- NA
+
+  if (exists("default", where = meta)) {
+    value <- meta$default
+  }
+
+  description <- ""
+
+  if (exists("minimum", where = meta)) {
+    description <- paste0(description, "Min: ", meta$minimum, " ")
+  }
+  if (exists("maximum", where = meta)) {
+    description <- paste0(description, "Max: ", meta$maximum, " ")
+  }
+
+  if (is.null(value) || nchar(value) == 0) {
+    value <- paste(PLACEHOLDER_TAG, description)
+  } else {
+    comment <- description
+  }
+
+  data.frame(value = value, comment = comment)
+}
+
+extract_param_meta_for_array <- function(meta) {
+  value <- NULL
+
   if (exists("items", where = meta)) {
     if (exists("oneOf", meta$items) && length(meta$items$oneOf) > 0) {
       value <- sapply(meta$items$oneOf, function(x) {
         x$const
       })
-      return(I(list(value)))
+      if (length(value) == 1) {
+        value <- I(list(list(value)))
+      } else {
+        value <- I(list(value))
+      }
     }
   }
 
-  NULL
+  data.frame(value = I(value), comment = NA)
 }
 
-extract_template_param_default_value <- function(meta) {
+extract_param_metadata <- function(meta) {
   switch(meta$type,
-    "string" = extract_template_param_string_default_value(meta),
-    "array"  = extract_template_param_array_default_value(meta)
+    "string" = extract_param_meta_for_string(meta),
+    "number" = extract_param_meta_for_number(meta),
+    "array" = extract_param_meta_for_array(meta),
   )
 }
 
@@ -57,12 +104,13 @@ strip_off_template_placeholders <- function(template) {
   t <- jsonlite::fromJSON(template, simplifyVector = FALSE)
   for (param in names(t))
   {
+    if (startsWith(param, "_comment_")) next
     value <- t[[param]]
     if (!is_placeholder(value)) {
       output[[param]] <- value
     }
   }
-  jsonlite::toJSON(output, pretty = TRUE, auto_unbox = TRUE)
+  jsonlite::toJSON(output, pretty = TRUE, auto_unbox = TRUE, digits = 17)
 }
 
 is_single_string <- function(input) {

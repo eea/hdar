@@ -26,7 +26,7 @@ Paginator <- R6::R6Class("Paginator",
               }
             }
 
-            if ((!is.null(limit) && length(results) >= limit) ||
+            if ((!is.null(limit) && length(results) > limit) ||
               length(results) >= resp$properties$totalResults || length(results) == 0) {
               break
             }

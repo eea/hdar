@@ -22,8 +22,6 @@ Client <- R6::R6Class("Client",
     #' @return An instance of the `Client` class.
     #' @export
     initialize = function(user, password, save_credentials = FALSE) {
-
-
       private$credentials_file_path <- "~/.hdarc"
 
       if (missing(user) || missing(password)) {
@@ -343,7 +341,8 @@ Client <- R6::R6Class("Client",
       resp <- self$send_request(req)$data
 
       if (to_json) {
-        resp <- jsonlite::toJSON(resp, pretty = TRUE, auto_unbox = TRUE)
+        resp <- jsonlite::toJSON(resp, pretty = TRUE, auto_unbox = TRUE, digits = 17)
+        print(resp)
       }
       resp
     },
@@ -364,7 +363,6 @@ Client <- R6::R6Class("Client",
     auth = NULL,
     credentials_file_path = NULL,
     read_credentials_from_file = function() {
-
       if (!file.exists(private$credentials_file_path)) {
         return(c("", ""))
       }
@@ -408,8 +406,14 @@ Client <- R6::R6Class("Client",
       for (param in names(data))
       {
         if (param == "dataset_id") next
-        if (param == "itemsPerPage") next
-        if (param == "startIndex") next
+        if (param == "itemsPerPage") {
+          obj$itemsPerPage <- 11
+          next
+        }
+        if (param == "startIndex") {
+          obj$startIndex <- 0
+          next
+        }
         if (is.null(data[[param]])) next
 
         if (grepl("bbox", param, fixed = TRUE)) {
@@ -423,22 +427,15 @@ Client <- R6::R6Class("Client",
           next
         }
 
-        pValue <- extract_template_param_default_value(data[[param]])
-        if (is.null(pValue)) {
-          switch(param,
-            "itemsPerPage" = {
-              pValue <- 11
-            },
-            "startIndex" = {
-              pValue <- 0
-            },
-            next
-          )
+        param_meta <- extract_param_metadata(data[[param]])
+        obj <- c(obj, setNames(param_meta$value, param))
+        if (!is.na(param_meta$comment)) {
+          obj <- c(obj, setNames(param_meta$comment, paste0("_comment_", param)))
         }
-        obj <- c(obj, setNames(pValue, param))
       }
+
       if (to_json) {
-        jsonlite::toJSON(obj, pretty = TRUE, auto_unbox = TRUE)
+        jsonlite::toJSON(obj, pretty = TRUE, auto_unbox = TRUE, digits = 17)
       } else {
         obj
       }
@@ -508,7 +505,7 @@ Client <- R6::R6Class("Client",
       if (grepl("application/json", content_type)) {
         resp %>%
           httr2::resp_body_json() %>%
-          jsonlite::toJSON(pretty = TRUE, auto_unbox = TRUE)
+          jsonlite::toJSON(pretty = TRUE, auto_unbox = TRUE, digits = 17)
       } else {
         # For other content types (e.g., text)
         resp %>% httr2::resp_body_string()
