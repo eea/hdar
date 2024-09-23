@@ -1,5 +1,5 @@
 ---
-title: "A Guide to hdar package"
+title: "A Guide to the hdar package"
 output:
   rmarkdown::html_vignette:
     toc: true
@@ -75,8 +75,42 @@ Once the client is created, you can check if it has been authenticated properly 
 client$get_token()
 ```
 
-By using one of these methods, you can securely authenticate with the HDA service and start making requests.
+# Copernicus Terms and Conditions (T&C)
+Copernicus data is free to use and modify, still T&Cs must be accepted in order to download the data. `hdarc` offers a confortable functionality to read and accept/reject T&C of the individual Copernicus service:
+```{r,eval=FALSE}
+client$show_terms()
+```
+Will open a browser where you can read all the available T&Cs.
+To accept/reject individual T&Cs or all at once use:
+```{r,eval=FALSE}
+client$terms_and_conditions()
 
+                                               term_id accepted
+1                           Copernicus_General_License    FALSE
+2                          Copernicus_Sentinel_License    FALSE
+3                       EUMETSAT_Core_Products_Licence    FALSE
+4                     EUMETSAT_Copernicus_Data_Licence    FALSE
+5  Copernicus_DEM_Instance_COP-DEM-GLO-90-F_Global_90m    FALSE
+6  Copernicus_DEM_Instance_COP-DEM-GLO-30-F_Global_30m    FALSE
+7                             Copernicus_ECMWF_License    FALSE
+8       Copernicus_Land_Monitoring_Service_Data_Policy    FALSE
+9            Copernicus_Marine_Service_Product_License    FALSE
+10                        CNES_Open_2.0_ETALAB_Licence    FALSE
+
+client$terms_and_conditions(term_id = 'all')
+                                              term_id accepted
+1                           Copernicus_General_License     TRUE
+2                          Copernicus_Sentinel_License     TRUE
+3                       EUMETSAT_Core_Products_Licence     TRUE
+4                     EUMETSAT_Copernicus_Data_Licence     TRUE
+5  Copernicus_DEM_Instance_COP-DEM-GLO-90-F_Global_90m     TRUE
+6  Copernicus_DEM_Instance_COP-DEM-GLO-30-F_Global_30m     TRUE
+7                             Copernicus_ECMWF_License     TRUE
+8       Copernicus_Land_Monitoring_Service_Data_Policy     TRUE
+9            Copernicus_Marine_Service_Product_License     TRUE
+10                        CNES_Open_2.0_ETALAB_Licence     TRUE
+
+```
 # Finding Datasets
 
 WEkEO offers a vast amount of different products. To find what you need the Client class provides a method called `datasets` that lists available datasets, optionally filtered by a text pattern.
@@ -86,7 +120,8 @@ WEkEO offers a vast amount of different products. To find what you need the Clie
 The basic usage of the datasets method is straightforward. You can retrieve a list of all datasets available on WEkEO by calling the `datasets` method on an instance of the `Client` class.
 
 ```{r, eval=FALSE}
-# retrieving the full list can take about 2 minutes!
+# retrieving the full list
+# This takes about 2 minutes!
 all_datasets <- client$datasets()
 
 # list all datasets IDs on WEkEO
@@ -98,16 +133,16 @@ sapply(filtered_datasets,FUN = function(x){x$dataset_id})
 You can also filter the datasets by providing a text pattern. This is useful when you are looking for datasets that match a specific keyword or phrase.
 
 ```{r, eval=FALSE}
-pattern <- "Seasonal Trajectories"
-filtered_datasets <- client$datasets(pattern)
+
+filtered_datasets <- client$datasets("Seasonal Trajectories")
 
 # list dataset IDs
 sapply(filtered_datasets,FUN = function(x){x$dataset_id})
 [1] "EO:EEA:DAT:CLMS_HRVPP_VPP-LAEA" "EO:EEA:DAT:CLMS_HRVPP_ST"       "EO:EEA:DAT:CLMS_HRVPP_ST-LAEA" 
 [4] "EO:EEA:DAT:CLMS_HRVPP_VPP" 
 
-pattern <- "Baltic"
-filtered_datasets <- client$datasets(pattern)
+
+filtered_datasets <- client$datasets("Baltic")
 
 # list dataset IDs
 sapply(filtered_datasets,FUN = function(x){x$dataset_id})
@@ -135,7 +170,26 @@ sapply(filtered_datasets,FUN = function(x){x$dataset_id})
 
 The datasets method returns a list containing datasets and associated information. This information may include dataset names, descriptions, and other metadata.
 ```{r, eval=FALSE}
-client$datasets("EO:CRYO:DAT:HRSI:FSC")[[1]]
+client$datasets("EO:ECMWF:DAT:DERIVED_NEAR_SURFACE_METEOROLOGICAL_VARIABLES")
+[[1]]
+[[1]]$terms
+[[1]]$terms[[1]]
+[1] "Copernicus_ECMWF_License"
+
+[[1]]$dataset_id
+[1] "EO:ECMWF:DAT:DERIVED_NEAR_SURFACE_METEOROLOGICAL_VARIABLES"
+
+[[1]]$title
+[1] "Near surface meteorological variables from 1979 to 2019 derived from bias-corrected reanalysis"
+
+[[1]]$abstract
+[1] "This dataset provides bias-corrected reconstruction of near-surface meteorological variables derived from the fifth generation of the European Centre for Medium-Range Weather Forecasts  (ECMWF) atmospheric reanalyses (ERA5). It is intended to be used as a meteorological forcing dataset for land surface and hydrological models. \nThe dataset has been obtained using the same methodology used to derive the widely used water, energy and climate change (WATCH) forcing data, and is thus also referred to as WATCH Forcing Data methodology applied to ERA5 (WFDE5). The data are derived from the ERA5 reanalysis product that have been re-gridded to a half-degree resolution. Data have been adjusted using an elevation correction and monthly-scale bias corrections based on Climatic Research Unit (CRU) data (for temperature, diurnal temperature range, cloud-cover, wet days number and precipitation fields) and Global Precipitation Climatology Centre (GPCC) data (for precipitation fields only). Additional corrections are included for varying atmospheric aerosol-loading and separate precipitation gauge observations. For full details please refer to the product user-guide.\nThis dataset was produced on behalf of Copernicus Climate Change Service (C3S) and was generated entirely within the Climate Data Store (CDS) Toolbox. The toolbox source code is provided in the documentation tab.\n\nVariables in the dataset/application are:\nGrid-point altitude, Near-surface air temperature, Near-surface specific humidity, Near-surface wind speed, Rainfall flux, Snowfall flux, Surface air pressure, Surface downwelling longwave radiation, Surface downwelling shortwave radiation"
+
+[[1]]$doi
+NULL
+
+[[1]]$thumbnails
+[1] "https://datastore.copernicus-climate.eu/c3s/published-forms-v2/c3sprod/derived-near-surface-meteorological-variables/overview.jpg"
 
 ```
 
@@ -311,7 +365,7 @@ Once you have made the necessary modifications, you can convert the list back to
 
 ```{r, eval = FALSE}
 # convert to JSON format
-query_template <- toJSON(query_template, auto_unbox = TRUE) # done forget auto_unbox = TRUE
+query_template <- toJSON(query_template, auto_unbox = TRUE) # don't forget to put auto_unbox = TRUE
 ```
 
 # Searching and Downloading Data
