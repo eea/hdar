@@ -36,10 +36,9 @@ extract_param_meta_for_string <- function(meta) {
   }
 
   if (exists("oneOf", where = meta) && length(meta$oneOf) > 0) {
-    value <- meta$oneOf[[1]]$const
-
     possible_values <- sapply(meta$oneOf, function(x) x$const)
-    comment <- paste0("One of: ", paste(possible_values, collapse = ","))
+    value <- paste(possible_values, collapse = " , ")
+    comment <- paste0("One of")
   }
 
   data.frame(value = value, comment = comment)
