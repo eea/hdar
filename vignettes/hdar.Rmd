@@ -262,14 +262,21 @@ query_template
   "itemsPerPage": 11,
   "startIndex": 0,
   "uid": "__### Value of string type with pattern: [\\w-]+",
-  "productType": "PPI , QFLAG",
+  "productType": "PPI",
   "_comment_productType": "One of",
+  "_values_productType": ["PPI", "QFLAG"],
   "platformSerialIdentifier": "S2A, S2B",
   "_comment_platformSerialIdentifier": "One of",
+  "_values_platformSerialIdentifier": [
+    "S2A, S2B"
+  ],
   "tileId": "__### Value of string type with pattern: [\\w-]+",
   "productVersion": "__### Value of string type with pattern: [\\w-]+",
   "resolution": "10",
   "_comment_resolution": "One of",
+  "_values_resolution": [
+    "10"
+  ],
   "processingDate": "__### Value of string type with format: date-time",
   "start": "__### Value of string type with format: date-time",
   "end": "__### Value of string type with format: date-time",
@@ -288,6 +295,8 @@ You can and should customize the generated query template to fit your specific n
 
 Placeholders are used when there is no way to derive the value from the metadata endpoint, while comment fields appear when the field has a value already defined, offering additional context for customizing the query.
 
+Furthermore, fields prefixed with `_values_` contain all possible values for a specific field. This allows you to programmatically reference them in your code with ease, simplifying customization and ensuring that you have access to valid options when configuring the query.
+
 To modify the query, it is often easier to transform the JSON into an R list using the `jsonlite::fromJSON()` function:
 
 ```{r, eval = FALSE}
@@ -298,13 +307,31 @@ query_template
 $dataset_id
 [1] "EO:EEA:DAT:CLMS_HRVPP_ST"
 
+$itemsPerPage
+[1] 11
+
+$startIndex
+[1] 0
+
 $uid
 [1] "__### Value of string type with pattern: [\\w-]+"
 
 $productType
 [1] "PPI"
 
+$`_comment_productType`
+[1] "One of"
+
+$`_values_productType`
+[1] "PPI"   "QFLAG"
+
 $platformSerialIdentifier
+[1] "S2A, S2B"
+
+$`_comment_platformSerialIdentifier`
+[1] "One of"
+
+$`_values_platformSerialIdentifier`
 [1] "S2A, S2B"
 
 $tileId
@@ -316,14 +343,20 @@ $productVersion
 $resolution
 [1] "10"
 
+$`_comment_resolution`
+[1] "One of"
+
+$`_values_resolution`
+[1] "10"
+
 $processingDate
-[1] "__### Value of string"
+[1] "__### Value of string type with format: date-time"
 
 $start
-[1] "__### Value of string"
+[1] "__### Value of string type with format: date-time"
 
 $end
-[1] "__### Value of string"
+[1] "__### Value of string type with format: date-time"
 
 $bbox
 [1] -180  -90  180   90
@@ -339,8 +372,15 @@ query_template$bbox <- c(11.1090, 46.6210, 11.2090, 46.7210)
 query_template$start <- "2018-03-01T00:00:00.000Z"
 query_template$end   <- "2018-05-31T00:00:00.000Z"
 query_template
+
 $dataset_id
 [1] "EO:EEA:DAT:CLMS_HRVPP_ST"
+
+$itemsPerPage
+[1] 11
+
+$startIndex
+[1] 0
 
 $uid
 [1] "__### Value of string type with pattern: [\\w-]+"
@@ -348,7 +388,19 @@ $uid
 $productType
 [1] "PPI"
 
+$`_comment_productType`
+[1] "One of"
+
+$`_values_productType`
+[1] "PPI"   "QFLAG"
+
 $platformSerialIdentifier
+[1] "S2A, S2B"
+
+$`_comment_platformSerialIdentifier`
+[1] "One of"
+
+$`_values_platformSerialIdentifier`
 [1] "S2A, S2B"
 
 $tileId
@@ -360,8 +412,14 @@ $productVersion
 $resolution
 [1] "10"
 
+$`_comment_resolution`
+[1] "One of"
+
+$`_values_resolution`
+[1] "10"
+
 $processingDate
-[1] "__### Value of string"
+[1] "__### Value of string type with format: date-time"
 
 $start
 [1] "2018-03-01T00:00:00.000Z"

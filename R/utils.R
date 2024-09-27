@@ -12,6 +12,7 @@ is_placeholder <- function(value) {
 extract_param_meta_for_string <- function(meta) {
   value <- NULL
   comment <- NA
+  possible_values <- NA
 
   if (exists("default", where = meta)) {
     value <- meta$default
@@ -37,11 +38,18 @@ extract_param_meta_for_string <- function(meta) {
 
   if (exists("oneOf", where = meta) && length(meta$oneOf) > 0) {
     possible_values <- sapply(meta$oneOf, function(x) x$const)
-    value <- paste(possible_values, collapse = " , ")
-    comment <- paste0("One of")
+    value <- possible_values[[1]]
+
+    if (length(possible_values) == 1) {
+      possible_values <- I(list(list(possible_values)))
+    } else {
+      possible_values <- I(list(possible_values))
+    }
+
+    comment <- "One of"
   }
 
-  data.frame(value = value, comment = comment)
+  data.frame(value = value, comment = comment, possible_values = possible_values)
 }
 
 extract_param_meta_for_number <- function(meta) {
@@ -67,7 +75,7 @@ extract_param_meta_for_number <- function(meta) {
     comment <- description
   }
 
-  data.frame(value = value, comment = comment)
+  data.frame(value = value, comment = comment, possible_values = NA)
 }
 
 extract_param_meta_for_array <- function(meta) {
@@ -86,7 +94,7 @@ extract_param_meta_for_array <- function(meta) {
     }
   }
 
-  data.frame(value = I(value), comment = NA)
+  data.frame(value = I(value), comment = NA, possible_values = NA)
 }
 
 extract_param_metadata <- function(meta) {
@@ -104,6 +112,7 @@ strip_off_template_placeholders <- function(template) {
   for (param in names(t))
   {
     if (startsWith(param, "_comment_")) next
+    if (startsWith(param, "_values_")) next
     value <- t[[param]]
     if (!is_placeholder(value)) {
       output[[param]] <- value

@@ -432,6 +432,9 @@ Client <- R6::R6Class("Client",
         if (!is.na(param_meta$comment)) {
           obj <- c(obj, setNames(param_meta$comment, paste0("_comment_", param)))
         }
+        if (!is.na(param_meta$possible_values)) {
+          obj <- c(obj, setNames(param_meta$possible_values, paste0("_values_", param)))
+        }
       }
 
       if (to_json) {
