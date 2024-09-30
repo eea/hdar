@@ -33,7 +33,11 @@ SearchResults <- R6::R6Class("SearchResults",
       self$total_count <- length(sapply(results, FUN = function(x) {
         x$id
       }))
-      self$total_size <- sum(sapply(results, function(x) if (!is.null(x$properties$size)) x$properties$size else 0))
+      if (self$total_count > 0) {
+        self$total_size <- sum(sapply(results, function(x) if (!is.null(x$properties$size) && is.numeric(x$properties$size)) x$properties$size else 0))
+      } else {
+        self$total_size <- 0
+      }
     },
 
     #' @description
@@ -41,9 +45,10 @@ SearchResults <- R6::R6Class("SearchResults",
     #' @param output_dir A string specifying the directory where downloaded files will be saved.
     #' @param selected_indexes Optional; indices of the specific results to download.
     #' @param stop_at_failure Optional; controls whether the download process of multiple files should immediately stop upon encountering the first failure.
+    #' @param force Optional; forces the download even if the file already exists in the specified output directory.
     #' @return Nothing returned but downloaded files are saved at the specified location.
     #' @export
-    download = function(output_dir, selected_indexes, stop_at_failure = TRUE) {
+    download = function(output_dir, selected_indexes, stop_at_failure = TRUE, force = FALSE) {
       if (self$total_count == 0 || !private$prompt_user_confirmation(self$total_size)) {
         return(NULL)
       }
@@ -73,12 +78,11 @@ SearchResults <- R6::R6Class("SearchResults",
             download_id <- private$get_download_id(r)
             is_ready <- private$ensure_download_is_ready(download_id)
             if (is_ready) {
-              private$download_resource(download_id, output_dir)
+              private$download_resource(download_id, output_dir, force)
             }
           },
           error = function(err) {
-            warning(err)
-            warning("[!] An error occurred during the download.")
+            warning("Error during the downloading:", err, sep = "\n")
             should_break <<- stop_at_failure
           }
         )
@@ -121,7 +125,7 @@ SearchResults <- R6::R6Class("SearchResults",
       resp <- private$client$send_request(req)$data
       resp$download_id
     },
-    download_resource = function(download_id, output_dir) {
+    download_resource = function(download_id, output_dir, force = FALSE) {
       url <- paste0(private$client$apiUrl, "/dataaccess/download/", download_id)
       req <- httr2::request(url) %>%
         httr2::req_method("GET")
@@ -140,8 +144,15 @@ SearchResults <- R6::R6Class("SearchResults",
         "downloaded_file"
       }
 
-      # Write the content to a file
+      # Define the full file path
       file_path <- file.path(output_dir, filename)
+
+      # Check if the file already exists and force flag is FALSE
+      if (file.exists(file_path) && !force) {
+        warning("File already exists:", file_path, "- Skipping download.\n")
+        return(NA)
+      }
+
       writeBin(httr2::resp_body_raw(resp), file_path)
 
       return(NA)
@@ -149,12 +160,12 @@ SearchResults <- R6::R6Class("SearchResults",
     prompt_user_confirmation = function(total_size) {
       if (total_size >= private$LARGE_DOWNLOAD_SIZE) {
         repeat {
-          cat("The total size is", humanize::natural_size(total_size), ". Do you want to proceed? (Y/N): ")
+          message("The total size is ", humanize::natural_size(total_size), ". Do you want to proceed? (Y/N): ")
           answer <- tolower(readLines(n = 1))
           if (answer %in% c("y", "n")) {
             return(answer == "y")
           } else {
-            cat("Invalid input. Please enter 'Y' or 'N'.\n")
+            message("Invalid input. Please enter 'Y' or 'N'.\n")
             return(TRUE)
           }
         }

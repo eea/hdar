@@ -1,5 +1,5 @@
 ---
-title: "A Guide to hdar package"
+title: "A Guide to the hdar package"
 output:
   rmarkdown::html_vignette:
     toc: true
@@ -10,28 +10,22 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-### Important Notice
-
-<div style="border: 1px solid orange; padding: 10px; background-color: #fff3cd; color: #856404;">
-  <strong>Notice:</strong> We are currently performing maintenance and improvements on the Backend service. You may experience intermittent slow responses or minor issues. Rest assured, our team is working hard to enhance your experience. Thank you for your patience!
-</div>
-
 # Introduction
 
-The `hdar` R package provides seamless access to the WEkEO Harmonised Data Access (HDA) API, enabling users to efficiently query, download, and process data from the HDA platform.
+The `hdar` R package provides seamless access to the WEkEO Harmonised Data Access (HDA) API, enabling users to programmatically query and download data from within R.
 
 # Accessing the HDA Service
 
-To utilize the HDA service and library, you must first register for a WEkEO account. The HDA service is available at no cost to all WEkEO users. Creating an account allows you full access to our services, ensuring you can leverage the full capabilities of HDA seamlessly. Registration is straightforward and can be completed through the following link: [Register for WEkEO](https://www.wekeo.eu/register). Once your account is set up, you will be able to access the HDA services immediately.
+To utilize the HDA service and library, you must first register for a WEkEO account. Copernicus data and the HDA service are available at no cost to all WEkEO users. Creating an account allows you full access to our services, ensuring you can leverage the full capabilities of HDA seamlessly. Registration is straightforward and can be completed through the following link: [Register for WEkEO](https://www.wekeo.eu/register). Once your account is set up, you will be able to access the HDA services immediately.
 
-# Setup
+# Installation
 
 To start using the `hdar` package, you first need to install and load it in your R environment.
 
 ```{r, eval = FALSE}
-# Install hdar from CRAN (if available) or GitHub
-# install.packages("hdar")
-# or
+# Install stable hdar from CRAN
+if(!require("hdar")){install.packages("hdar")}
+# or develop version from GitHub
 # devtools::install_github("eea/hdar@develop")
 
 # Load the hdar package
@@ -80,22 +74,62 @@ Once the client is created, you can check if it has been authenticated properly 
 client$get_token()
 ```
 
-By using one of these methods, you can securely authenticate with the HDA service and start making requests.
+# Copernicus Terms and Conditions (T&C)
+
+Copernicus data is free to use and modify, still T&Cs must be accepted in order to download the data. `hdarc` offers a confortable functionality to read and accept/reject T&C of the individual Copernicus service:
+
+```{r,eval=FALSE}
+client$show_terms()
+```
+
+Will open a browser where you can read all the available T&Cs.
+To accept/reject individual T&Cs or all at once use:
+
+```{r,eval=FALSE}
+client$terms_and_conditions()
+
+                                               term_id accepted
+1                           Copernicus_General_License    FALSE
+2                          Copernicus_Sentinel_License    FALSE
+3                       EUMETSAT_Core_Products_Licence    FALSE
+4                     EUMETSAT_Copernicus_Data_Licence    FALSE
+5  Copernicus_DEM_Instance_COP-DEM-GLO-90-F_Global_90m    FALSE
+6  Copernicus_DEM_Instance_COP-DEM-GLO-30-F_Global_30m    FALSE
+7                             Copernicus_ECMWF_License    FALSE
+8       Copernicus_Land_Monitoring_Service_Data_Policy    FALSE
+9            Copernicus_Marine_Service_Product_License    FALSE
+10                        CNES_Open_2.0_ETALAB_Licence    FALSE
+
+client$terms_and_conditions(term_id = 'all')
+                                              term_id accepted
+1                           Copernicus_General_License     TRUE
+2                          Copernicus_Sentinel_License     TRUE
+3                       EUMETSAT_Core_Products_Licence     TRUE
+4                     EUMETSAT_Copernicus_Data_Licence     TRUE
+5  Copernicus_DEM_Instance_COP-DEM-GLO-90-F_Global_90m     TRUE
+6  Copernicus_DEM_Instance_COP-DEM-GLO-30-F_Global_30m     TRUE
+7                             Copernicus_ECMWF_License     TRUE
+8       Copernicus_Land_Monitoring_Service_Data_Policy     TRUE
+9            Copernicus_Marine_Service_Product_License     TRUE
+10                        CNES_Open_2.0_ETALAB_Licence     TRUE
+
+```
 
 # Finding Datasets
 
-To interact with the HDA service, you will often need to find datasets available on WEkEO. The Client class provides a method called `datasets` that lists available datasets, optionally filtered by a text pattern.
+WEkEO offers a vast amount of different products. To find what you need the Client class provides a method called `datasets` that lists available datasets, optionally filtered by a text pattern.
 
 ## Basic Usage
 
 The basic usage of the datasets method is straightforward. You can retrieve a list of all datasets available on WEkEO by calling the `datasets` method on an instance of the `Client` class.
 
 ```{r, eval=FALSE}
-# Assuming 'client' is already created and authenticated
-# client <- Client$new()
+# retrieving the full list
+# This takes about 2 minutes!
 all_datasets <- client$datasets()
-all_datasets
-all_datasets
+
+# list all datasets IDs on WEkEO
+sapply(filtered_datasets,FUN = function(x){x$dataset_id})
 ```
 
 ## Filtering Datasets
@@ -103,39 +137,120 @@ all_datasets
 You can also filter the datasets by providing a text pattern. This is useful when you are looking for datasets that match a specific keyword or phrase.
 
 ```{r, eval=FALSE}
-# Assuming 'client' is already created and authenticated
-# client <- Client$new()
 
-pattern <- "Seasonal Trajectories"
-# client <- Client$new()
-
-pattern <- "Seasonal Trajectories"
-filtered_datasets <- client$datasets(pattern)
+filtered_datasets <- client$datasets("Seasonal Trajectories")
 
 # list dataset IDs
 sapply(filtered_datasets,FUN = function(x){x$dataset_id})
 [1] "EO:EEA:DAT:CLMS_HRVPP_VPP-LAEA" "EO:EEA:DAT:CLMS_HRVPP_ST"       "EO:EEA:DAT:CLMS_HRVPP_ST-LAEA"
 [4] "EO:EEA:DAT:CLMS_HRVPP_VPP"
+
+
+filtered_datasets <- client$datasets("Baltic")
+
+# list dataset IDs
+sapply(filtered_datasets,FUN = function(x){x$dataset_id})
+ [1] "EO:MO:DAT:BALTICSEA_ANALYSISFORECAST_BGC_003_007:cmems_mod_bal_bgc-pp_anfc_P1D-i_202311"
+ [2] "EO:MO:DAT:NWSHELF_MULTIYEAR_PHY_004_009:cmems_mod_nws_phy-sst_my_7km-2D_PT1H-i_202112"
+ [3] "EO:MO:DAT:OCEANCOLOUR_BAL_BGC_L4_MY_009_134:cmems_obs-oc_bal_bgc-plankton_my_l4-multi-1km_P1M_202211"
+ [4] "EO:MO:DAT:SST_BAL_PHY_SUBSKIN_L4_NRT_010_034:cmems_obs-sst_bal_phy-subskin_nrt_l4_PT1H-m_202211"
+ [5] "EO:MO:DAT:BALTICSEA_MULTIYEAR_PHY_003_011:cmems_mod_bal_phy_my_P1Y-m_202303"
+ [6] "EO:MO:DAT:OCEANCOLOUR_BAL_BGC_L3_NRT_009_131:cmems_obs-oc_bal_bgc-transp_nrt_l3-olci-300m_P1D_202207"
+ [7] "EO:MO:DAT:BALTICSEA_MULTIYEAR_BGC_003_012:cmems_mod_bal_bgc_my_P1Y-m_202303"
+ [8] "EO:MO:DAT:SST_BAL_SST_L4_REP_OBSERVATIONS_010_016:DMI_BAL_SST_L4_REP_OBSERVATIONS_010_016_202012"
+ [9] "EO:MO:DAT:BALTICSEA_ANALYSISFORECAST_PHY_003_006:cmems_mod_bal_phy_anfc_PT15M-i_202311"
+[10] "EO:MO:DAT:OCEANCOLOUR_BAL_BGC_L3_MY_009_133:cmems_obs-oc_bal_bgc-plankton_my_l3-multi-1km_P1D_202207"
+[11] "EO:MO:DAT:SST_BAL_PHY_L3S_MY_010_040:cmems_obs-sst_bal_phy_my_l3s_P1D-m_202211"
+[12] "EO:MO:DAT:SEAICE_BAL_SEAICE_L4_NRT_OBSERVATIONS_011_004:FMI-BAL-SEAICE_THICK-L4-NRT-OBS"
+[13] "EO:MO:DAT:SEAICE_BAL_PHY_L4_MY_011_019:cmems_obs-si_bal_seaice-conc_my_1km_202112"
+[14] "EO:MO:DAT:BALTICSEA_ANALYSISFORECAST_WAV_003_010:cmems_mod_bal_wav_anfc_PT1H-i_202311"
+[15] "EO:MO:DAT:BALTICSEA_REANALYSIS_WAV_003_015:dataset-bal-reanalysis-wav-hourly_202003"
+[16] "EO:MO:DAT:OCEANCOLOUR_BAL_BGC_L4_NRT_009_132:cmems_obs-oc_bal_bgc-plankton_nrt_l4-olci-300m_P1M_202207"
+[17] "EO:MO:DAT:SST_BAL_SST_L3S_NRT_OBSERVATIONS_010_032:DMI-BALTIC-SST-L3S-NRT-OBS_FULL_TIME_SERIE_201904"
+
 ```
 
 ## Understanding the Results
 
 The datasets method returns a list containing datasets and associated information. This information may include dataset names, descriptions, and other metadata.
 
+```{r, eval=FALSE}
+client$datasets("EO:ECMWF:DAT:DERIVED_NEAR_SURFACE_METEOROLOGICAL_VARIABLES")
+[[1]]
+[[1]]$terms
+[[1]]$terms[[1]]
+[1] "Copernicus_ECMWF_License"
+
+[[1]]$dataset_id
+[1] "EO:ECMWF:DAT:DERIVED_NEAR_SURFACE_METEOROLOGICAL_VARIABLES"
+
+[[1]]$title
+[1] "Near surface meteorological variables from 1979 to 2019 derived from bias-corrected reanalysis"
+
+[[1]]$abstract
+[1] "This dataset provides bias-corrected reconstruction of near-surface meteorological variables derived from the fifth generation of the European Centre for Medium-Range Weather Forecasts  (ECMWF) atmospheric reanalyses (ERA5). It is intended to be used as a meteorological forcing dataset for land surface and hydrological models. \nThe dataset has been obtained using the same methodology used to derive the widely used water, energy and climate change (WATCH) forcing data, and is thus also referred to as WATCH Forcing Data methodology applied to ERA5 (WFDE5). The data are derived from the ERA5 reanalysis product that have been re-gridded to a half-degree resolution. Data have been adjusted using an elevation correction and monthly-scale bias corrections based on Climatic Research Unit (CRU) data (for temperature, diurnal temperature range, cloud-cover, wet days number and precipitation fields) and Global Precipitation Climatology Centre (GPCC) data (for precipitation fields only). Additional corrections are included for varying atmospheric aerosol-loading and separate precipitation gauge observations. For full details please refer to the product user-guide.\nThis dataset was produced on behalf of Copernicus Climate Change Service (C3S) and was generated entirely within the Climate Data Store (CDS) Toolbox. The toolbox source code is provided in the documentation tab.\n\nVariables in the dataset/application are:\nGrid-point altitude, Near-surface air temperature, Near-surface specific humidity, Near-surface wind speed, Rainfall flux, Snowfall flux, Surface air pressure, Surface downwelling longwave radiation, Surface downwelling shortwave radiation"
+
+[[1]]$doi
+NULL
+
+[[1]]$thumbnails
+[1] "https://datastore.copernicus-climate.eu/c3s/published-forms-v2/c3sprod/derived-near-surface-meteorological-variables/overview.jpg"
+
+```
+
 # Creating a Query Template
 
-To search for data in the HDA service, you need to create a query template. Manually creating a query template can be tedious as it involves reading documentation and learning about possible parameters. To simplify this process, the `generate_query_template` function is provided to automate the creation of query templates for a given dataset.
+To search for a specific product, you need to create a query template. You can either use the [WEkEO viewer](https://www.wekeo.eu/data?view=viewer) and copy paste the JSON query:
+
+```{r, fig.show='hold', echo=FALSE,out.width="45%"}
+knitr::include_graphics(c("WEkEO_UI_JSON_1.png","WEkEO_UI_JSON_2.png"))
+
+```
+
+```{r,echo=TRUE}
+query <- '{
+  "dataset_id": "EO:ECMWF:DAT:CEMS_GLOFAS_HISTORICAL",
+  "system_version": [
+    "version_4_0"
+  ],
+  "hydrological_model": [
+    "lisflood"
+  ],
+  "product_type": [
+    "consolidated"
+  ],
+  "variable": [
+    "river_discharge_in_the_last_24_hours"
+  ],
+  "hyear": [
+    "2024"
+  ],
+  "hmonth": [
+    "june"
+  ],
+  "hday": [
+    "01"
+  ],
+  "format": "grib",
+  "bbox": [
+    11.77115199576009,
+    44.56907885098417,
+    13.0263737724595,
+    45.40384015467251
+  ],
+  "itemsPerPage": 200,
+  "startIndex": 0
+}'
+```
+
+or use the query template function `generate_query_template` for a given dataset.
 
 ## Basic Usage
 
 The `generate_query_template` function generates a template of a query for a specified dataset. This function fetches information about existing parameters, default values, etc., from the `/queryable` endpoint of the HDA service.
-The `generate_query_template` function generates a template of a query for a specified dataset. This function fetches information about existing parameters, default values, etc., from the `/queryable` endpoint of the HDA service.
 
 #### Example: Generating a Query
 
-#### Example: Generating a Query
-
-Here is an example of how to generate a query template for the dataset with the ID "EO:EEA:DAT:CLMS_HRVPP_ST":
 Here is an example of how to generate a query template for the dataset with the ID "EO:EEA:DAT:CLMS_HRVPP_ST":
 
 ```{r, eval = FALSE}
@@ -144,15 +259,27 @@ query_template <- client$generate_query_template("EO:EEA:DAT:CLMS_HRVPP_ST")
 query_template
 {
   "dataset_id": "EO:EEA:DAT:CLMS_HRVPP_ST",
+  "itemsPerPage": 11,
+  "startIndex": 0,
   "uid": "__### Value of string type with pattern: [\\w-]+",
   "productType": "PPI",
+  "_comment_productType": "One of",
+  "_values_productType": ["PPI", "QFLAG"],
   "platformSerialIdentifier": "S2A, S2B",
+  "_comment_platformSerialIdentifier": "One of",
+  "_values_platformSerialIdentifier": [
+    "S2A, S2B"
+  ],
   "tileId": "__### Value of string type with pattern: [\\w-]+",
   "productVersion": "__### Value of string type with pattern: [\\w-]+",
   "resolution": "10",
-  "processingDate": "__### Value of string",
-  "start": "__### Value of string",
-  "end": "__### Value of string",
+  "_comment_resolution": "One of",
+  "_values_resolution": [
+    "10"
+  ],
+  "processingDate": "__### Value of string type with format: date-time",
+  "start": "__### Value of string type with format: date-time",
+  "end": "__### Value of string type with format: date-time",
   "bbox": [
     -180,
     -90,
@@ -162,13 +289,29 @@ query_template
 }
 ```
 
+## Modify and use the generated Query Template
+
+You can and should customize the generated query template to fit your specific needs. Fields starting with `__###` are placeholders indicating possible values. If these placeholders are left unchanged, they will be automatically removed before sending the query to the HDA service. Additionally, fields with the prefix `_comment_` provide relevant information regarding the specified field, such as possible values, format, or data patterns. Like the placeholders, these comment fields will also be automatically removed before the query is sent.
+
+Placeholders are used when there is no way to derive the value from the metadata endpoint, while comment fields appear when the field has a value already defined, offering additional context for customizing the query.
+
+Furthermore, fields prefixed with `_values_` contain all possible values for a specific field. This allows you to programmatically reference them in your code with ease, simplifying customization and ensuring that you have access to valid options when configuring the query.
+
+To modify the query, it is often easier to transform the JSON into an R list using the `jsonlite::fromJSON()` function:
+
 ```{r, eval = FALSE}
 # convert to list for easier manipulation in R
 library(jsonlite)
-query_template <- fromJSON(query_template)
+query_template <- fromJSON(query_template, flatten = FALSE)
 query_template
 $dataset_id
 [1] "EO:EEA:DAT:CLMS_HRVPP_ST"
+
+$itemsPerPage
+[1] 11
+
+$startIndex
+[1] 0
 
 $uid
 [1] "__### Value of string type with pattern: [\\w-]+"
@@ -176,7 +319,19 @@ $uid
 $productType
 [1] "PPI"
 
+$`_comment_productType`
+[1] "One of"
+
+$`_values_productType`
+[1] "PPI"   "QFLAG"
+
 $platformSerialIdentifier
+[1] "S2A, S2B"
+
+$`_comment_platformSerialIdentifier`
+[1] "One of"
+
+$`_values_platformSerialIdentifier`
 [1] "S2A, S2B"
 
 $tileId
@@ -188,85 +343,24 @@ $productVersion
 $resolution
 [1] "10"
 
-$processingDate
-[1] "__### Value of string"
+$`_comment_resolution`
+[1] "One of"
 
-$start
-[1] "__### Value of string"
-
-$end
-[1] "__### Value of string"
-
-$bbox
-[1] -180  -90  180   90
-# client <- Client$new()
-query_template <- client$generate_query_template("EO:EEA:DAT:CLMS_HRVPP_ST")
-query_template
-{
-  "dataset_id": "EO:EEA:DAT:CLMS_HRVPP_ST",
-  "uid": "__### Value of string type with pattern: [\\w-]+",
-  "productType": "PPI",
-  "platformSerialIdentifier": "S2A, S2B",
-  "tileId": "__### Value of string type with pattern: [\\w-]+",
-  "productVersion": "__### Value of string type with pattern: [\\w-]+",
-  "resolution": "10",
-  "processingDate": "__### Value of string",
-  "start": "__### Value of string",
-  "end": "__### Value of string",
-  "bbox": [
-    -180,
-    -90,
-    180,
-    90
-  ]
-}
-```
-
-```{r, eval = FALSE}
-# convert to list for easier manipulation in R
-library(jsonlite)
-query_template <- fromJSON(query_template)
-query_template
-$dataset_id
-[1] "EO:EEA:DAT:CLMS_HRVPP_ST"
-
-$uid
-[1] "__### Value of string type with pattern: [\\w-]+"
-
-$productType
-[1] "PPI"
-
-$platformSerialIdentifier
-[1] "S2A, S2B"
-
-$tileId
-[1] "__### Value of string type with pattern: [\\w-]+"
-
-$productVersion
-[1] "__### Value of string type with pattern: [\\w-]+"
-
-$resolution
+$`_values_resolution`
 [1] "10"
 
 $processingDate
-[1] "__### Value of string"
+[1] "__### Value of string type with format: date-time"
 
 $start
-[1] "__### Value of string"
+[1] "__### Value of string type with format: date-time"
 
 $end
-[1] "__### Value of string"
+[1] "__### Value of string type with format: date-time"
 
 $bbox
 [1] -180  -90  180   90
 ```
-
-## Modify and use the generated Query Template
-
-## Modify and use the generated Query Template
-
-You can and should customize the generated query template to fit your specific needs. Fields starting with '\_\_###' are placeholder values indicating possible values, but if unchanged it will be stripped off before sending the query to the HDA service.
-You can and should customize the generated query template to fit your specific needs. Fields starting with '\_\_###' are placeholder values indicating possible values, but if unchanged it will be stripped off before sending the query to the HDA service.
 
 Here is an example of how to use the query template in a search:
 
@@ -278,8 +372,15 @@ query_template$bbox <- c(11.1090, 46.6210, 11.2090, 46.7210)
 query_template$start <- "2018-03-01T00:00:00.000Z"
 query_template$end   <- "2018-05-31T00:00:00.000Z"
 query_template
+
 $dataset_id
 [1] "EO:EEA:DAT:CLMS_HRVPP_ST"
+
+$itemsPerPage
+[1] 11
+
+$startIndex
+[1] 0
 
 $uid
 [1] "__### Value of string type with pattern: [\\w-]+"
@@ -287,7 +388,19 @@ $uid
 $productType
 [1] "PPI"
 
+$`_comment_productType`
+[1] "One of"
+
+$`_values_productType`
+[1] "PPI"   "QFLAG"
+
 $platformSerialIdentifier
+[1] "S2A, S2B"
+
+$`_comment_platformSerialIdentifier`
+[1] "One of"
+
+$`_values_platformSerialIdentifier`
 [1] "S2A, S2B"
 
 $tileId
@@ -299,47 +412,14 @@ $productVersion
 $resolution
 [1] "10"
 
-$processingDate
-[1] "__### Value of string"
+$`_comment_resolution`
+[1] "One of"
 
-$start
-[1] "2018-03-01T00:00:00.000Z"
-
-$end
-[1] "2018-05-31T00:00:00.000Z"
-
-$bbox
-[1] 11.109 46.621 11.209 46.721
-# set a new bbox
-query_template$bbox <- c(11.1090, 46.6210, 11.2090, 46.7210)
-
-# limit the time range
-query_template$start <- "2018-03-01T00:00:00.000Z"
-query_template$end   <- "2018-05-31T00:00:00.000Z"
-query_template
-$dataset_id
-[1] "EO:EEA:DAT:CLMS_HRVPP_ST"
-
-$uid
-[1] "__### Value of string type with pattern: [\\w-]+"
-
-$productType
-[1] "PPI"
-
-$platformSerialIdentifier
-[1] "S2A, S2B"
-
-$tileId
-[1] "__### Value of string type with pattern: [\\w-]+"
-
-$productVersion
-[1] "__### Value of string type with pattern: [\\w-]+"
-
-$resolution
+$`_values_resolution`
 [1] "10"
 
 $processingDate
-[1] "__### Value of string"
+[1] "__### Value of string type with format: date-time"
 
 $start
 [1] "2018-03-01T00:00:00.000Z"
@@ -349,6 +429,13 @@ $end
 
 $bbox
 [1] 11.109 46.621 11.209 46.721
+```
+
+Once you have made the necessary modifications, you can convert the list back to JSON format with the `jsonlite::toJSON()` function. It's crucial to use the `auto_unbox = TRUE` flag when converting back to JSON. This ensures that the JSON is correctly formatted, particularly for arrays with a single element, due to the way `jsonlite` handles serialization.
+
+```{r, eval = FALSE}
+# convert to JSON format
+query_template <- toJSON(query_template, auto_unbox = TRUE, digits = 17) # don't forget to put auto_unbox = TRUE
 ```
 
 # Searching and Downloading Data
@@ -373,22 +460,11 @@ sapply(matches$results,FUN = function(x){x$id})
 [5] "ST_20180411T000000_S2_T32TPS-010m_V101_PPI" "ST_20180421T000000_S2_T32TPS-010m_V101_PPI"
 [7] "ST_20180501T000000_S2_T32TPS-010m_V101_PPI" "ST_20180511T000000_S2_T32TPS-010m_V101_PPI"
 [9] "ST_20180521T000000_S2_T32TPS-010m_V101_PPI"
-matches <- client$search(query_template)
-[1] "Found 9 files"
-[1] "Total Size 1.8 GB"
-
-sapply(matches$results,FUN = function(x){x$id})
-[1] "ST_20180301T000000_S2_T32TPS-010m_V101_PPI" "ST_20180311T000000_S2_T32TPS-010m_V101_PPI"
-[3] "ST_20180321T000000_S2_T32TPS-010m_V101_PPI" "ST_20180401T000000_S2_T32TPS-010m_V101_PPI"
-[5] "ST_20180411T000000_S2_T32TPS-010m_V101_PPI" "ST_20180421T000000_S2_T32TPS-010m_V101_PPI"
-[7] "ST_20180501T000000_S2_T32TPS-010m_V101_PPI" "ST_20180511T000000_S2_T32TPS-010m_V101_PPI"
-[9] "ST_20180521T000000_S2_T32TPS-010m_V101_PPI"
 ```
 
 ## Downloading the files
 
-The `SearchResults` class has a public field results and a method called download that is responsible for downloading the found data. The `download()` function takes an output directory (which is created if no existing) and the optional parameter `selected_indexes` to specify which files to download.
-The `SearchResults` class has a public field results and a method called download that is responsible for downloading the found data. The `download()` function takes an output directory (which is created if no existing) and the optional parameter `selected_indexes` to specify which files to download.
+The `SearchResults` class has a public field `results` and a method called `download` that is responsible for downloading the found data. The `download()` function takes an output directory (which is created if it doesn't already exist) and includes an optional `force` parameter. When `force` is set to `TRUE`, the function will re-download the files even if they already exist in the output directory, overwriting the existing files. If `force` is set to `FALSE` (the default), the function will skip downloading files that already exist, saving time and bandwidth.
 
 ```{r, eval = FALSE}
 # Assuming 'matches' is an instance of SearchResults obtained from the search
@@ -409,14 +485,6 @@ y
 [1] "[Download] DONE"
 
 # Assuming 'matches' is an instance of SearchResults obtained from the search
-list.files(odir)
-[1] "ST_20180301T000000_S2_T32TPS-010m_V101_PPI.tif" "ST_20180311T000000_S2_T32TPS-010m_V101_PPI.tif"
-[3] "ST_20180321T000000_S2_T32TPS-010m_V101_PPI.tif" "ST_20180401T000000_S2_T32TPS-010m_V101_PPI.tif"
-[5] "ST_20180411T000000_S2_T32TPS-010m_V101_PPI.tif" "ST_20180421T000000_S2_T32TPS-010m_V101_PPI.tif"
-[7] "ST_20180501T000000_S2_T32TPS-010m_V101_PPI.tif" "ST_20180511T000000_S2_T32TPS-010m_V101_PPI.tif"
-[9] "ST_20180521T000000_S2_T32TPS-010m_V101_PPI.tif"
-
-unlink(odir,recursive = TRUE)
 list.files(odir)
 [1] "ST_20180301T000000_S2_T32TPS-010m_V101_PPI.tif" "ST_20180311T000000_S2_T32TPS-010m_V101_PPI.tif"
 [3] "ST_20180321T000000_S2_T32TPS-010m_V101_PPI.tif" "ST_20180401T000000_S2_T32TPS-010m_V101_PPI.tif"

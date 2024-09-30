@@ -177,13 +177,13 @@ List containing datasets and associated information.
 \subsection{Method \code{search()}}{
 This function performs a search based on a specified query and returns an instance of \code{\link{SearchResults}}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Client$search(query, limit = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Client$search(json_query, limit = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{query}}{Character string representing the search query.}
+\item{\code{json_query}}{Character string representing the search query.}
 
 \item{\code{limit}}{Optional; a number specifying the maximum number of results to return.}
 }

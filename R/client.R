@@ -22,8 +22,10 @@ Client <- R6::R6Class("Client",
     #' @return An instance of the `Client` class.
     #' @export
     initialize = function(user, password, save_credentials = FALSE) {
+      private$credentials_file_path <- "~/.hdarc"
+
       if (missing(user) || missing(password)) {
-        # read from ~/.hdrc file
+        # read from file
         cred <- private$read_credentials_from_file()
         user <- cred[1]
         password <- cred[2]
@@ -72,7 +74,6 @@ Client <- R6::R6Class("Client",
         private$auth$get_token()
       }
 
-
       req <- req %>%
         httr2::req_headers(Authorization = paste("Bearer", private$auth$token())) %>%
         httr2::req_retry(max_tries = 3)
@@ -82,7 +83,9 @@ Client <- R6::R6Class("Client",
           req %>% httr2::req_perform()
         },
         error = function(err) {
-          if (httr2::last_response()$status_code == 403 || httr2::last_response()$status_code == 401) {
+          resp <- httr2::last_response()
+
+          if (resp$status_code == 403 || resp$status_code == 401) {
             private$auth$get_token()
             req <- req %>% httr2::req_headers(Authorization = paste("Bearer", private$auth$token()))
 
@@ -91,11 +94,13 @@ Client <- R6::R6Class("Client",
                 req %>% httr2::req_perform()
               },
               error = function(err) {
-                stop(paste("Network error. Reason: ", err))
+                error_message <- private$extract_error_message(resp)
+                stop(paste("Network Error:", error_message, sep = "\n"))
               }
             )
           } else {
-            stop(paste("Network error. Reason: ", err))
+            error_message <- private$extract_error_message(resp)
+            stop(paste("Network Error:", error_message, sep = "\n"))
           }
         }
       )
@@ -114,7 +119,7 @@ Client <- R6::R6Class("Client",
         }
         return(list("data" = data, "status_code" = resp$status_code))
       }
-      stop(httr2::resp_body_json(resp)$detail)
+      stop(paste("Incorrect data: ", httr2::resp_body_json(resp)$detail, sep = "\n"))
     },
 
 
@@ -276,7 +281,7 @@ Client <- R6::R6Class("Client",
     #' @description
     #' This function performs a search based on a specified query and returns an instance of \code{\link{SearchResults}}.
     #'
-    #' @param query Character string representing the search query.
+    #' @param json_query Character string representing the search query.
     #' @param limit Optional; a number specifying the maximum number of results to return.
     #' @return An instance of the \code{\link{SearchResults}} class containing the search results.
     #' @seealso \code{\link[=SearchResults]{SearchResults}} for details on the returned object.
@@ -284,14 +289,14 @@ Client <- R6::R6Class("Client",
     #' @importFrom stringr str_detect
     #' @importFrom humanize natural_size
     #' @export
-    search = function(query, limit = NULL) {
-      json_query <- jsonlite::toJSON(query, pretty = TRUE, auto_unbox = FALSE)
+    search = function(json_query, limit = NULL) {
       json_query <- strip_off_template_placeholders(json_query)
+      query <- jsonlite::fromJSON(json_query, simplifyVector = FALSE)
 
       url <- paste0(self$apiUrl, "/dataaccess/search")
       req <- httr2::request(url) %>%
         httr2::req_method("POST") %>%
-        httr2::req_body_json(jsonlite::fromJSON(json_query))
+        httr2::req_body_json(query)
 
       tryCatch(
         {
@@ -306,7 +311,8 @@ Client <- R6::R6Class("Client",
           search_results
         },
         error = function(err) {
-          stop(paste("Search query failed"))
+          warning("Search query failed")
+          stop(err)
         }
       )
     },
@@ -335,7 +341,8 @@ Client <- R6::R6Class("Client",
       resp <- self$send_request(req)$data
 
       if (to_json) {
-        resp <- jsonlite::toJSON(resp, pretty = TRUE, auto_unbox = TRUE)
+        resp <- jsonlite::toJSON(resp, pretty = TRUE, auto_unbox = TRUE, digits = 17)
+        print(resp)
       }
       resp
     },
@@ -354,12 +361,13 @@ Client <- R6::R6Class("Client",
   ),
   private = list(
     auth = NULL,
+    credentials_file_path = NULL,
     read_credentials_from_file = function() {
-      if (!file.exists("~/.hdarc")) {
+      if (!file.exists(private$credentials_file_path)) {
         return(c("", ""))
       }
 
-      file <- readLines("~/.hdarc")
+      file <- readLines(private$credentials_file_path)
       user <- private$read_credential_property_from_file(file, "user")
       password <- private$read_credential_property_from_file(file, "password")
 
@@ -375,11 +383,11 @@ Client <- R6::R6Class("Client",
       prop_value <- gsub(regexp, "\\1", file[idx]) %>% trimws()
     },
     save_credentials_to_file = function(user, pwd) {
-      if (!file.exists("~/.hdarc")) {
-        file.create("~/.hdarc")
+      if (!file.exists(private$credentials_file_path)) {
+        file.create(private$credentials_file_path)
       }
 
-      fileConn <- file("~/.hdarc")
+      fileConn <- file(private$credentials_file_path)
       writeLines(
         c(
           paste0("user:", user),
@@ -398,8 +406,14 @@ Client <- R6::R6Class("Client",
       for (param in names(data))
       {
         if (param == "dataset_id") next
-        if (param == "itemsPerPage") next
-        if (param == "startIndex") next
+        if (param == "itemsPerPage") {
+          obj$itemsPerPage <- 11
+          next
+        }
+        if (param == "startIndex") {
+          obj$startIndex <- 0
+          next
+        }
         if (is.null(data[[param]])) next
 
         if (grepl("bbox", param, fixed = TRUE)) {
@@ -413,22 +427,18 @@ Client <- R6::R6Class("Client",
           next
         }
 
-        pValue <- extract_template_param_default_value(data[[param]])
-        if (is.null(pValue)) {
-          switch(param,
-            "itemsPerPage" = {
-              pValue <- 11
-            },
-            "startIndex" = {
-              pValue <- 0
-            },
-            next
-          )
+        param_meta <- extract_param_metadata(data[[param]])
+        obj <- c(obj, setNames(param_meta$value, param))
+        if (!is.na(param_meta$comment)) {
+          obj <- c(obj, setNames(param_meta$comment, paste0("_comment_", param)))
         }
-        obj <- c(obj, setNames(pValue, param))
+        if (!is.na(param_meta$possible_values)) {
+          obj <- c(obj, setNames(param_meta$possible_values, paste0("_values_", param)))
+        }
       }
+
       if (to_json) {
-        jsonlite::toJSON(obj, pretty = TRUE, auto_unbox = TRUE)
+        jsonlite::toJSON(obj, pretty = TRUE, auto_unbox = TRUE, digits = 17)
       } else {
         obj
       }
@@ -491,6 +501,18 @@ Client <- R6::R6Class("Client",
         "doi" = doi,
         "thumbnails" = meta[["thumbnails"]]
       )
+    },
+    extract_error_message = function(resp) {
+      content_type <- httr2::resp_content_type(resp)
+
+      if (grepl("application/json", content_type)) {
+        resp %>%
+          httr2::resp_body_json() %>%
+          jsonlite::toJSON(pretty = TRUE, auto_unbox = TRUE, digits = 17)
+      } else {
+        # For other content types (e.g., text)
+        resp %>% httr2::resp_body_string()
+      }
     }
   )
 )

@@ -26,7 +26,7 @@ Paginator <- R6::R6Class("Paginator",
               }
             }
 
-            if ((!is.null(limit) && length(results) >= limit) ||
+            if ((!is.null(limit) && length(results) > limit) ||
               length(results) >= resp$properties$totalResults || length(results) == 0) {
               break
             }
@@ -37,7 +37,8 @@ Paginator <- R6::R6Class("Paginator",
           results
         },
         error = function(err) {
-          stop(paste("Error when getting data. Reason: ", err))
+          error = paste("Error when getting data with paginator", err, sep = "\n")
+          stop(error)
         }
       )
     }
