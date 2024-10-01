@@ -1,7 +1,7 @@
 Package: hdar
 Type: Package
 Title: 'REST' API Client for Accessing Data on 'WEkEO HDA V2'
-Version: 1.0.2
+Version: 1.0.3
 URL: https://www.wekeo.eu/
 BugReports: https://github.com/eea/hdar/issues
 Authors@R: person("Matteo", "Mattiuzzi", email = "matteo.mattiuzzi@eea.europa.eu", role = c("aut", "cre"))
