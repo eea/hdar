@@ -129,7 +129,7 @@ The basic usage of the datasets method is straightforward. You can retrieve a li
 all_datasets <- client$datasets()
 
 # list all datasets IDs on WEkEO
-sapply(filtered_datasets,FUN = function(x){x$dataset_id})
+sapply(all_datasets,FUN = function(x){x$dataset_id})
 ```
 
 ## Filtering Datasets
