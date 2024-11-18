@@ -46,10 +46,11 @@ SearchResults <- R6::R6Class("SearchResults",
     #' @param selected_indexes Optional; indices of the specific results to download.
     #' @param stop_at_failure Optional; controls whether the download process of multiple files should immediately stop upon encountering the first failure.
     #' @param force Optional; forces the download even if the file already exists in the specified output directory.
+    #' @param prompt Optional; enables all user prompts for decisions during file downloads. Defaults to true.
     #' @return Nothing returned but downloaded files are saved at the specified location.
     #' @export
-    download = function(output_dir, selected_indexes, stop_at_failure = TRUE, force = FALSE) {
-      if (self$total_count == 0 || !private$prompt_user_confirmation(self$total_size)) {
+    download = function(output_dir, selected_indexes, stop_at_failure = TRUE, force = FALSE, prompt = TRUE) {
+      if (self$total_count == 0 || (prompt && !private$prompt_user_confirmation(self$total_size))) {
         return(NULL)
       }
 

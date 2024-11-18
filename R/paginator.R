@@ -9,11 +9,6 @@ Paginator <- R6::R6Class("Paginator",
       results <- list()
       start_index <- 0
 
-      params <- list(
-        "startIndex" = 0,
-        "itemsPerPage" = items_per_page
-      )
-
       tryCatch(
         {
           repeat {
@@ -47,16 +42,17 @@ Paginator <- R6::R6Class("Paginator",
     client = NULL,
     request_type = NULL,
     get_page = function(request, start_index = 0, items_per_page = 10) {
-      params <- list(
-        "startIndex" = start_index,
-        "itemsPerPage" = items_per_page
-      )
 
       req <- request
       if (private$request_type == "POST") {
         req <- req %>%
-          httr2::req_body_json_modify(params)
+          httr2::req_body_json_modify(startIndex = start_index,
+                                      itemsPerPage = items_per_page)
       } else {
+        params <- list(
+          startIndex = start_index,
+          itemsPerPage = items_per_page
+        )
         req <- req %>%
           httr2::req_url_query(!!!params)
       }
