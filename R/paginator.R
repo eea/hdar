@@ -9,6 +9,10 @@ Paginator <- R6::R6Class("Paginator",
       results <- list()
       start_index <- 0
 
+      if (!is.null(limit) && limit < items_per_page) {
+        items_per_page <- limit
+      }
+
       tryCatch(
         {
           repeat {
@@ -21,7 +25,7 @@ Paginator <- R6::R6Class("Paginator",
               }
             }
 
-            if ((!is.null(limit) && length(results) > limit) ||
+            if ((!is.null(limit) && length(results) >= limit) ||
               length(results) >= resp$properties$totalResults || length(results) == 0) {
               break
             }

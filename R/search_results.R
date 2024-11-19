@@ -128,24 +128,8 @@ SearchResults <- R6::R6Class("SearchResults",
     },
     download_resource = function(download_id, output_dir, force = FALSE) {
       url <- paste0(private$client$apiUrl, "/dataaccess/download/", download_id)
-      req <- httr2::request(url) %>%
-        httr2::req_method("GET")
 
-
-      resp <- private$client$send_request(req, TRUE)
-      if (resp$status_code != 200) {
-        stop(paste("Couldn't download: ", url))
-      }
-
-      # Extract the file name from the Content-Disposition header
-      content_disposition <- httr2::resp_headers(resp, "content-disposition")
-      filename <- if (!is.null(content_disposition)) {
-        gsub('.*filename="?([^"]+)"?.*', "\\1", content_disposition)
-      } else {
-        "downloaded_file"
-      }
-
-      # Define the full file path
+      filename <- private$check_resource_name(url)
       file_path <- file.path(output_dir, filename)
 
       # Check if the file already exists and force flag is FALSE
@@ -154,8 +138,15 @@ SearchResults <- R6::R6Class("SearchResults",
         return(NA)
       }
 
-      writeBin(httr2::resp_body_raw(resp), file_path)
+      req <- httr2::request(url) %>%
+        httr2::req_method("GET")
 
+      resp <- private$client$send_request(req, TRUE)
+      if (resp$status_code != 200) {
+        stop(paste("Couldn't download: ", url))
+      }
+
+      writeBin(httr2::resp_body_raw(resp), file_path)
       return(NA)
     },
     prompt_user_confirmation = function(total_size) {
@@ -173,6 +164,25 @@ SearchResults <- R6::R6Class("SearchResults",
       } else {
         return(TRUE)
       }
+    },
+    check_resource_name = function(url) {
+      req <- httr2::request(url) %>%
+        httr2::req_method("HEAD")
+
+      resp <- private$client$send_request(req, TRUE)
+      if (resp$status_code != 200) {
+        stop(paste("Couldn't download: ", url))
+      }
+
+      # Extract the file name from the Content-Disposition header
+      content_disposition <- httr2::resp_headers(resp, "content-disposition")
+      filename <- if (!is.null(content_disposition)) {
+        gsub('.*filename="?([^"]+)"?.*', "\\1", content_disposition)
+      } else {
+        "downloaded_file"
+      }
+
+      return(filename)
     }
   )
 )
