@@ -156,7 +156,7 @@ Client <- R6::R6Class("Client",
             class = "card-header", id = paste0("heading", index),
             htmltools::tags$h2(
               class = "mb-0",
-              htmltools::tags$button(feature$title,
+              htmltools::tags$button(feature$term_id,
                 class = "btn btn-link",
                 type = "button",
                 `data-toggle` = "collapse",

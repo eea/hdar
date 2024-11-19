@@ -46,10 +46,11 @@ SearchResults <- R6::R6Class("SearchResults",
     #' @param selected_indexes Optional; indices of the specific results to download.
     #' @param stop_at_failure Optional; controls whether the download process of multiple files should immediately stop upon encountering the first failure.
     #' @param force Optional; forces the download even if the file already exists in the specified output directory.
+    #' @param prompt Optional; enables all user prompts for decisions during file downloads. Defaults to true.
     #' @return Nothing returned but downloaded files are saved at the specified location.
     #' @export
-    download = function(output_dir, selected_indexes, stop_at_failure = TRUE, force = FALSE) {
-      if (self$total_count == 0 || !private$prompt_user_confirmation(self$total_size)) {
+    download = function(output_dir, selected_indexes, stop_at_failure = TRUE, force = FALSE, prompt = TRUE) {
+      if (self$total_count == 0 || (prompt && !private$prompt_user_confirmation(self$total_size))) {
         return(NULL)
       }
 
@@ -127,24 +128,8 @@ SearchResults <- R6::R6Class("SearchResults",
     },
     download_resource = function(download_id, output_dir, force = FALSE) {
       url <- paste0(private$client$apiUrl, "/dataaccess/download/", download_id)
-      req <- httr2::request(url) %>%
-        httr2::req_method("GET")
 
-
-      resp <- private$client$send_request(req, TRUE)
-      if (resp$status_code != 200) {
-        stop(paste("Couldn't download: ", url))
-      }
-
-      # Extract the file name from the Content-Disposition header
-      content_disposition <- httr2::resp_headers(resp, "content-disposition")
-      filename <- if (!is.null(content_disposition)) {
-        gsub('.*filename="?([^"]+)"?.*', "\\1", content_disposition)
-      } else {
-        "downloaded_file"
-      }
-
-      # Define the full file path
+      filename <- private$check_resource_name(url)
       file_path <- file.path(output_dir, filename)
 
       # Check if the file already exists and force flag is FALSE
@@ -153,8 +138,15 @@ SearchResults <- R6::R6Class("SearchResults",
         return(NA)
       }
 
-      writeBin(httr2::resp_body_raw(resp), file_path)
+      req <- httr2::request(url) %>%
+        httr2::req_method("GET")
 
+      resp <- private$client$send_request(req, TRUE)
+      if (resp$status_code != 200) {
+        stop(paste("Couldn't download: ", url))
+      }
+
+      writeBin(httr2::resp_body_raw(resp), file_path)
       return(NA)
     },
     prompt_user_confirmation = function(total_size) {
@@ -172,6 +164,25 @@ SearchResults <- R6::R6Class("SearchResults",
       } else {
         return(TRUE)
       }
+    },
+    check_resource_name = function(url) {
+      req <- httr2::request(url) %>%
+        httr2::req_method("HEAD")
+
+      resp <- private$client$send_request(req, TRUE)
+      if (resp$status_code != 200) {
+        stop(paste("Couldn't download: ", url))
+      }
+
+      # Extract the file name from the Content-Disposition header
+      content_disposition <- httr2::resp_headers(resp, "content-disposition")
+      filename <- if (!is.null(content_disposition)) {
+        gsub('.*filename="?([^"]+)"?.*', "\\1", content_disposition)
+      } else {
+        "downloaded_file"
+      }
+
+      return(filename)
     }
   )
 )
