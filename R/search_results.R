@@ -60,9 +60,7 @@ SearchResults <- R6::R6Class("SearchResults",
         dir.create(output_dir)
       }
 
-      resources_to_download <- self$results
-
-      # resources_to_download <- if (missing(selected_indexes)) self$results else self$results[selected_indexes]
+      resources_to_download <- if (missing(selected_indexes)) self$results else self$results[selected_indexes]
       i <- 0
       should_break <- FALSE
       for (r in resources_to_download) {
