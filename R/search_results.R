@@ -48,6 +48,7 @@ SearchResults <- R6::R6Class("SearchResults",
     #' @param force Optional; forces the download even if the file already exists in the specified output directory.
     #' @param prompt Optional; enables all user prompts for decisions during file downloads. Defaults to true.
     #' @return Nothing returned but downloaded files are saved at the specified location.
+    #' @importFrom progress progress_bar
     #' @export
     download = function(output_dir, selected_indexes, stop_at_failure = TRUE, force = FALSE, prompt = TRUE) {
       if (self$total_count == 0 || (prompt && !private$prompt_user_confirmation(self$total_size))) {
