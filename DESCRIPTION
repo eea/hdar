@@ -1,7 +1,7 @@
 Package: hdar
 Type: Package
 Title: 'REST' API Client for Accessing Data on 'WEkEO HDA V2'
-Version: 1.0.5
+Version: 1.0.6
 URL: https://www.wekeo.eu/
 BugReports: https://github.com/eea/hdar/issues
 Authors@R: person("Matteo", "Mattiuzzi", email = "matteo.mattiuzzi@eea.europa.eu", role = c("aut", "cre"))
@@ -23,7 +23,8 @@ Imports:
   magrittr,
   htmltools,
   stringr,
-  humanize
+  scales,
+  progress
 Depends: 
     R (>= 2.10),
 Suggests: 

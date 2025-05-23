@@ -85,7 +85,14 @@ Client <- R6::R6Class("Client",
         error = function(err) {
           resp <- httr2::last_response()
 
-          if (resp$status_code == 403 || resp$status_code == 401) {
+          #print("last response:")
+          #print(resp)
+          #print("-----")
+          #print("error: ")
+          #print(err)
+          #print("#####")
+
+          if (!is.null(resp) && (resp$status_code == 403 || resp$status_code == 401)) {
             private$auth$get_token()
             req <- req %>% httr2::req_headers(Authorization = paste("Bearer", private$auth$token()))
 
@@ -94,13 +101,11 @@ Client <- R6::R6Class("Client",
                 req %>% httr2::req_perform()
               },
               error = function(err) {
-                error_message <- private$extract_error_message(resp)
-                stop(paste("Network Error:", error_message, sep = "\n"))
+                stop(format_error_message(err))
               }
             )
           } else {
-            error_message <- private$extract_error_message(resp)
-            stop(paste("Network Error:", error_message, sep = "\n"))
+            stop(format_error_message(resp))
           }
         }
       )
@@ -263,7 +268,7 @@ Client <- R6::R6Class("Client",
       url <- paste0(self$apiUrl, "/datasets")
       req <- httr2::request(url) %>%
         httr2::req_method("GET") %>%
-        httr2::req_url_query(q = pattern, startIndex = 0, itemsPerPage = 10)
+        httr2::req_url_query(q = pattern, startIndex = 0, itemsPerPage = 100)
 
       tryCatch(
         {
@@ -272,6 +277,7 @@ Client <- R6::R6Class("Client",
           lapply(datasets, private$extract_dataset_meta)
         },
         error = function(err) {
+          print(err)
           stop(paste("Datasets query failed"))
         }
       )
@@ -287,7 +293,7 @@ Client <- R6::R6Class("Client",
     #' @seealso \code{\link[=SearchResults]{SearchResults}} for details on the returned object.
     #' @importFrom httr2 request req_method req_body_json
     #' @importFrom stringr str_detect
-    #' @importFrom humanize natural_size
+    #' @importFrom scales label_bytes
     #' @export
     search = function(json_query, limit = NULL) {
       json_query <- strip_off_template_placeholders(json_query)
@@ -306,13 +312,17 @@ Client <- R6::R6Class("Client",
           search_results <- SearchResults$new(self, results, query$dataset_id)
 
           message(paste("Found", search_results$total_count, "files"))
-          message(paste("Total Size", humanize::natural_size(search_results$total_size)))
+          message(paste("Total Size", scales::label_bytes()(search_results$total_size)))
 
           search_results
         },
         error = function(err) {
-          warning("Search query failed")
-          stop(err)
+          msg <- sprintf(
+            "Failed to search data:\n%s\n\nOriginal error:\n%s",
+            conditionMessage(err),
+            capture.output(str(err))
+          )
+          stop(msg)
         }
       )
     },
@@ -342,7 +352,6 @@ Client <- R6::R6Class("Client",
 
       if (to_json) {
         resp <- jsonlite::toJSON(resp, pretty = TRUE, auto_unbox = TRUE, digits = 17)
-        print(resp)
       }
       resp
     },
@@ -501,18 +510,6 @@ Client <- R6::R6Class("Client",
         "doi" = doi,
         "thumbnails" = meta[["thumbnails"]]
       )
-    },
-    extract_error_message = function(resp) {
-      content_type <- httr2::resp_content_type(resp)
-
-      if (grepl("application/json", content_type)) {
-        resp %>%
-          httr2::resp_body_json() %>%
-          jsonlite::toJSON(pretty = TRUE, auto_unbox = TRUE, digits = 17)
-      } else {
-        # For other content types (e.g., text)
-        resp %>% httr2::resp_body_string()
-      }
     }
   )
 )

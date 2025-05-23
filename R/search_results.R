@@ -54,23 +54,22 @@ SearchResults <- R6::R6Class("SearchResults",
         return(NULL)
       }
 
-      message("[Download] Start")
-
       if (!dir.exists(output_dir)) {
         dir.create(output_dir)
       }
 
       resources_to_download <- if (missing(selected_indexes)) self$results else self$results[selected_indexes]
+
+      proggress_bar <- progress::progress_bar$new(
+        format = "[Download] :current/:total (:percent) :elapsed",
+        total = length(resources_to_download),
+        clear = FALSE,
+        width = 60
+      )
+
       i <- 0
-      should_break <- FALSE
       for (r in resources_to_download) {
-        if (should_break) {
-          break
-        }
-
         i <- i + 1
-
-        message(paste0("[Download] Downloading file ", i, "/", length(resources_to_download)))
 
         tryCatch(
           {
@@ -79,14 +78,28 @@ SearchResults <- R6::R6Class("SearchResults",
             if (is_ready) {
               private$download_resource(download_id, output_dir, force)
             }
+            proggress_bar$tick()
           },
           error = function(err) {
-            warning("Error during the downloading:", err, sep = "\n")
-            should_break <<- stop_at_failure
+            if (stop_at_failure) {
+              proggress_bar$terminate()
+              stop(conditionMessage(err))
+            } else {
+              err_msg <- conditionMessage(err)
+              message(err_msg)
+
+              # Special handling for HTTP 429
+              if (grepl("\\[HTTP 429\\]", err_msg)) {
+                proggress_bar$terminate()
+                stop(sprintf("Operation halted due to rate limit (HTTP 429). Please slow down your requests."))
+              }
+
+              proggress_bar$message(conditionMessage(err))
+              proggress_bar$tick()
+            }
           }
         )
       }
-      message("[Download] DONE")
     }
   ),
   private = list(
@@ -132,7 +145,7 @@ SearchResults <- R6::R6Class("SearchResults",
 
       # Check if the file already exists and force flag is FALSE
       if (file.exists(file_path) && !force) {
-        warning("File already exists:", file_path, "- Skipping download.\n")
+        # warning("File already exists:", file_path, "- Skipping download.\n")
         return(NA)
       }
 
@@ -141,7 +154,12 @@ SearchResults <- R6::R6Class("SearchResults",
 
       resp <- private$client$send_request(req, TRUE)
       if (resp$status_code != 200) {
-        stop(paste("Couldn't download: ", url))
+        stop(sprintf(
+          "Failed to download data.\nURL: %s\nStatus code: %s\nReason: %s",
+          url,
+          resp$status_code,
+          resp$status_text %||% "Unknown"
+        ))
       }
 
       writeBin(httr2::resp_body_raw(resp), file_path)
@@ -150,7 +168,7 @@ SearchResults <- R6::R6Class("SearchResults",
     prompt_user_confirmation = function(total_size) {
       if (total_size >= private$LARGE_DOWNLOAD_SIZE) {
         repeat {
-          message("The total size is ", humanize::natural_size(total_size), ". Do you want to proceed? (Y/N): ")
+          message("The total size is ", scales::label_bytes()(total_size), ". Do you want to proceed? (Y/N): ")
           answer <- tolower(readLines(n = 1))
           if (answer %in% c("y", "n")) {
             return(answer == "y")
@@ -169,7 +187,12 @@ SearchResults <- R6::R6Class("SearchResults",
 
       resp <- private$client$send_request(req, TRUE)
       if (resp$status_code != 200) {
-        stop(paste("Couldn't download: ", url))
+        stop(sprintf(
+          "Failed to download data.\nURL: %s\nStatus code: %s\nReason: %s",
+          url,
+          resp$status_code,
+          resp$status_text %||% "Unknown"
+        ))
       }
 
       # Extract the file name from the Content-Disposition header
