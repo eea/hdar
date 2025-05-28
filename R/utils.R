@@ -124,3 +124,68 @@ strip_off_template_placeholders <- function(template) {
 is_single_string <- function(input) {
   is.character(input) & length(input) == 1
 }
+
+format_error_message <- function(
+    err,
+    context = "Operation failed",
+    include_url = TRUE,
+    fallback_status = "Unknown") {
+
+  if (is.null(err)) {
+    return("Unknown Network Error")
+  }
+
+  if (!is.null(err) && inherits(err, "httr2_response")) {
+    resp <- err
+    parsed <- tryCatch(httr2::resp_body_json(resp), error = function(e) NULL)
+
+    # Try to parse the 'detail' field to extract error's metadata
+    parsed_detail <- NULL
+    if (!is.null(parsed$detail) && is.character(parsed$detail) && grepl("^\\s*\\{", parsed$detail)) {
+      parsed_detail <- tryCatch(jsonlite::fromJSON(parsed$detail), error = function(e) NULL)
+    }
+
+    top_status <- parsed$status_code %||% httr2::resp_status(resp) %||% fallback_status
+    top_title <- parsed$title %||% "Unspecified error"
+    top_url <- parsed$url %||% NULL
+
+    nested_status <- parsed_detail$status_code %||% NULL
+    nested_title <- parsed_detail$title %||% NULL
+    nested_detail_text <- parsed_detail$detail %||% ""
+
+    msg_match <- regmatches(nested_detail_text, regexpr("message='([^']+)'", nested_detail_text))
+    url_match <- regmatches(nested_detail_text, regexpr("url='([^']+)'", nested_detail_text))
+
+    extracted_message <- NA
+    if (length(msg_match) == 1 && grepl("message='[^']+'", msg_match)) {
+      extracted_message <- sub("message='([^']+)'", "\\1", msg_match)
+    }
+
+    extracted_url <- NA
+    if (length(url_match) == 1 && grepl("url='[^']+'", url_match)) {
+      extracted_url <- sub("url='([^']+)'", "\\1", url_match)
+    }
+
+    final_title <- nested_title %||% top_title
+    final_status <- nested_status %||% top_status
+
+    message <- sprintf("%s [HTTP %s]: %s", context, final_status, final_title)
+
+    if (!is.null(extracted_message) && !is.na(extracted_message) && nzchar(extracted_message)) {
+      message <- paste0(message, "\nDetail: ", extracted_message)
+    }
+
+    if (include_url && !is.null(extracted_url) && !is.na(extracted_url) &&nzchar(extracted_url)) {
+      message <- paste0(message, "\nURL: ", extracted_url)
+    }
+
+    return(message)
+  }
+
+
+  # Fallback to base condition message
+  msg <- conditionMessage(err)
+  first_line <- strsplit(msg, "\n")[[1]][1]
+  sprintf("%s: %s", context, first_line)
+}
+

@@ -36,8 +36,12 @@ Paginator <- R6::R6Class("Paginator",
           results
         },
         error = function(err) {
-          error = paste("Error when getting data with paginator", err, sep = "\n")
-          stop(error)
+          msg <- sprintf(
+            "Failed to retrieve data using paginator:\n%s\n\nOriginal error:\n%s",
+            conditionMessage(err),
+            capture.output(str(err))
+          )
+          stop(msg)
         }
       )
     }
@@ -46,12 +50,13 @@ Paginator <- R6::R6Class("Paginator",
     client = NULL,
     request_type = NULL,
     get_page = function(request, start_index = 0, items_per_page = 10) {
-
       req <- request
       if (private$request_type == "POST") {
         req <- req %>%
-          httr2::req_body_json_modify(startIndex = start_index,
-                                      itemsPerPage = items_per_page)
+          httr2::req_body_json_modify(
+            startIndex = start_index,
+            itemsPerPage = items_per_page
+          )
       } else {
         params <- list(
           startIndex = start_index,
