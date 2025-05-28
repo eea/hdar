@@ -85,13 +85,6 @@ Client <- R6::R6Class("Client",
         error = function(err) {
           resp <- httr2::last_response()
 
-          #print("last response:")
-          #print(resp)
-          #print("-----")
-          #print("error: ")
-          #print(err)
-          #print("#####")
-
           if (!is.null(resp) && (resp$status_code == 403 || resp$status_code == 401)) {
             private$auth$get_token()
             req <- req %>% httr2::req_headers(Authorization = paste("Bearer", private$auth$token()))
