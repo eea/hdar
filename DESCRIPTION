@@ -3,7 +3,6 @@ Type: Package
 Title: 'REST' API Client for Accessing Data on 'WEkEO HDA V2'
 Version: 1.0.6
 URL: https://www.wekeo.eu/
-BugReports: https://github.com/eea/hdar/issues
 Authors@R: person("Matteo", "Mattiuzzi", email = "matteo.mattiuzzi@eea.europa.eu", role = c("aut", "cre"))
 Maintainer: Matteo Mattiuzzi <matteo.mattiuzzi@eea.europa.eu>
 Description: 
@@ -13,7 +12,8 @@ Description:
   datasets into their R workflows, enhancing their data analysis capabilities. 
   Comprehensive information on the API functionality and usage is available 
   at <https://gateway.prod.wekeo2.eu/hda-broker/docs>.  
-License: EUPL (>= 1.2)
+License: EUPL (>= 1.2) + file LICENSE
+BugReports: https://github.com/eea/hdar/issues
 Encoding: UTF-8
 RoxygenNote: 7.3.2
 Imports:

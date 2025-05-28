@@ -61,7 +61,8 @@ Downloads resources based on stored results or selected indices of results.
   output_dir,
   selected_indexes,
   stop_at_failure = TRUE,
-  force = FALSE
+  force = FALSE,
+  prompt = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -75,6 +76,8 @@ Downloads resources based on stored results or selected indices of results.
 \item{\code{stop_at_failure}}{Optional; controls whether the download process of multiple files should immediately stop upon encountering the first failure.}
 
 \item{\code{force}}{Optional; forces the download even if the file already exists in the specified output directory.}
+
+\item{\code{prompt}}{Optional; enables all user prompts for decisions during file downloads. Defaults to true.}
 }
 \if{html}{\out{</div>}}
 }
