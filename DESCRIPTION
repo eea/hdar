@@ -1,7 +1,7 @@
 Package: hdar
 Type: Package
 Title: 'REST' API Client for Accessing Data on 'WEkEO HDA V2'
-Version: 1.0.6
+Version: 1.0.7
 URL: https://www.wekeo.eu/
 Authors@R: person("Matteo", "Mattiuzzi", email = "matteo.mattiuzzi@eea.europa.eu", role = c("aut", "cre"))
 Maintainer: Matteo Mattiuzzi <matteo.mattiuzzi@eea.europa.eu>
