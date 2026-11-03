@@ -18,7 +18,7 @@ check_if_placeholders_exist <- function(query_template) {
 test_that("Template - Generate Query Template", {
   client <- Client$new()
 
-  query_template <- client$generate_query_template("EO:CRYO:DAT:HRSI:FSC")
+  query_template <- client$generate_query_template("EO:EEA:DAT:CLMS_HRVPP_ST")
   # print(query_template)
 
   usable_query_template <- strip_off_template_placeholders(query_template)

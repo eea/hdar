@@ -1,26 +1,20 @@
 library("testthat")
 library("hdar")
 
+# Small (~6 MB, single-file) query: CLMS Grassland 10m yearly, one tile and year.
 QUERY_CORRECT <- '{
-  "dataset_id": "EO:CRYO:DAT:HRSI:SWS",
-  "observed_start": "2021-01-01T00:00:00.000Z"
-}'
-
-QUERY_CORRECT2 <- '{
-  "dataset_id": "EO:ECMWF:DAT:CAMS_GLOBAL_EMISSION_INVENTORIES",
-  "variable": [
-    "acetaldehyde"
+  "dataset_id": "EO:CLMS:DAT:GRA_10M_YEARLY_2017_PRESENT",
+  "datasetIdentifier": [
+    "clms_vlcc_grassland_europe_10m_yearly_v1"
   ],
-  "source": [
-    "anthropogenic"
-  ],
-  "version": [
-    "latest"
-  ],
-  "year": [
-    "2000"
-  ],
-  "format": "zip"
+  "startdate": "2020-01-01T00:00:00.000Z",
+  "enddate": "2020-12-31T23:59:59.999Z",
+  "bbox": [
+    11.1,
+    46.6,
+    11.2,
+    46.7
+  ]
 }'
 
 QUERY_FAILED <- '{
@@ -49,24 +43,28 @@ test_that("Search - Matches Found", {
   client <- Client$new()
 
   matches <- client$search(QUERY_CORRECT, 2)
-  #print(matches)
+  expect_gt(matches$total_count, 0)
 
-  # Download files for *all* results
-  temp_dir <- tempdir()
+  # Use a dedicated sub-directory so tempdir() itself is never deleted.
+  temp_dir <- tempfile("hdar-test-search-")
+
   matches$download(temp_dir)
-  #print(list.files(temp_dir, recursive = TRUE))
+  downloaded <- list.files(temp_dir)
+  expect_gt(length(downloaded), 0)
 
-  # Test 'force' flag
-  expect_warning(matches$download(temp_dir), "File already exists:*")
-  expect_warning(matches$download(temp_dir, force = TRUE), NA)
+  # Downloading again without `force` silently skips existing files: no warning,
+  # and the files on disk are unchanged.
+  expect_no_warning(matches$download(temp_dir))
+  expect_setequal(list.files(temp_dir), downloaded)
 
-  # delete the folder and files
+  # `force = TRUE` re-downloads, also without a warning.
+  expect_no_warning(matches$download(temp_dir, force = TRUE))
+  expect_setequal(list.files(temp_dir), downloaded)
+
   unlink(temp_dir, recursive = TRUE, force = TRUE)
-
-  expect_true(TRUE)
 })
 
 test_that("Search - Failed Query", {
   client <- Client$new()
-  expect_error(matches <- client$search(QUERY_FAILED))
+  expect_error(client$search(QUERY_FAILED), "Failed to search data")
 })

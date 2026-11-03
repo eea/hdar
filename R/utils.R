@@ -81,27 +81,67 @@ extract_param_meta_for_number <- function(meta) {
 extract_param_meta_for_array <- function(meta) {
   value <- NULL
 
-  if (exists("items", where = meta)) {
-    if (exists("oneOf", meta$items) && length(meta$items$oneOf) > 0) {
-      value <- sapply(meta$items$oneOf, function(x) {
+  items <- meta$items
+  if (!is.null(items)) {
+    if (exists("oneOf", where = items) && length(items$oneOf) > 0) {
+      value <- sapply(items$oneOf, function(x) {
         x$const
       })
-      if (length(value) == 1) {
-        value <- I(list(list(value)))
-      } else {
-        value <- I(list(value))
-      }
+    } else if (exists("enum", where = items) && length(items$enum) > 0) {
+      value <- unlist(items$enum, use.names = FALSE)
     }
+  }
+
+  if (is.null(value) || length(value) == 0) {
+    # No enumerable values available (common for CDSE queryables), so emit a
+    # placeholder instead of calling I(NULL), which errors.
+    value <- paste(PLACEHOLDER_TAG, "Value of array type")
+  } else if (length(value) == 1) {
+    value <- I(list(list(value)))
+  } else {
+    value <- I(list(value))
   }
 
   data.frame(value = I(value), comment = NA, possible_values = NA)
 }
 
+extract_param_meta_for_other <- function(meta) {
+  value <- meta$default
+  description <- paste0(
+    "Value of ",
+    if (is.null(meta$type)) "unknown" else meta$type,
+    " type"
+  )
+
+  if (is.null(value) || (is.character(value) && nchar(value) == 0)) {
+    value <- paste(PLACEHOLDER_TAG, description)
+    comment <- NA
+  } else {
+    comment <- description
+  }
+
+  data.frame(value = value, comment = comment, possible_values = NA)
+}
+
 extract_param_metadata <- function(meta) {
+  # A property may already be a concrete scalar instead of a schema object.
+  if (!is.list(meta)) {
+    return(data.frame(value = I(meta), comment = NA, possible_values = NA))
+  }
+
+  # switch() errors when its EXPR is NULL, so route missing types to the default.
+  if (is.null(meta$type)) {
+    return(extract_param_meta_for_other(meta))
+  }
+
   switch(meta$type,
     "string" = extract_param_meta_for_string(meta),
     "number" = extract_param_meta_for_number(meta),
+    "integer" = extract_param_meta_for_number(meta),
     "array" = extract_param_meta_for_array(meta),
+    # Default: boolean and any other/unknown type must still return a data.frame,
+    # otherwise callers crash on param_meta$comment.
+    extract_param_meta_for_other(meta)
   )
 }
 
