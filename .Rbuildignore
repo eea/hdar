@@ -3,3 +3,4 @@
 .lintr
 ^doc$
 ^Meta$
+^cran-comments\.md$
