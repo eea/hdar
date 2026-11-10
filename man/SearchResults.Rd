@@ -9,97 +9,97 @@ This class handles the storage and manipulation of search results including down
 SearchResults
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{results}}{Stores the search results data.}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{results}}{Stores the search results data.}
 
-\item{\code{total_count}}{Stores the total count of results' element.}
+    \item{\code{total_count}}{Stores the total count of results' element.}
 
-\item{\code{total_size}}{Stores the total size of results}
-}
-\if{html}{\out{</div>}}
+    \item{\code{total_size}}{Stores the total size of results}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-SearchResults-new}{\code{SearchResults$new()}}
-\item \href{#method-SearchResults-download}{\code{SearchResults$download()}}
-\item \href{#method-SearchResults-clone}{\code{SearchResults$clone()}}
-}
+  \itemize{
+    \item \href{#method-SearchResults-initialize}{\code{SearchResults$new()}}
+    \item \href{#method-SearchResults-download}{\code{SearchResults$download()}}
+    \item \href{#method-SearchResults-clone}{\code{SearchResults$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-SearchResults-new"></a>}}
-\if{latex}{\out{\hypertarget{method-SearchResults-new}{}}}
-\subsection{Method \code{new()}}{
-Initializes a new SearchResults object with the specified client, results, and dataset identifier.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SearchResults$new(client, results, dataset_id)}\if{html}{\out{</div>}}
+\if{html}{\out{<a id="method-SearchResults-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-SearchResults-initialize}{}}}
+\subsection{\code{SearchResults$new()}}{
+  Initializes a new SearchResults object with the specified client, results, and dataset identifier.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{SearchResults$new(client, results, dataset_id)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{client}}{An object containing the API client used to interact with the dataset.}
+      \item{\code{results}}{List containing search results.}
+      \item{\code{dataset_id}}{The identifier for the dataset being queried.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    SearchResult instance
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{client}}{An object containing the API client used to interact with the dataset.}
-
-\item{\code{results}}{List containing search results.}
-
-\item{\code{dataset_id}}{The identifier for the dataset being queried.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-SearchResult instance
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SearchResults-download"></a>}}
 \if{latex}{\out{\hypertarget{method-SearchResults-download}{}}}
-\subsection{Method \code{download()}}{
-Downloads resources based on stored results or selected indices of results.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SearchResults$download(
+\subsection{\code{SearchResults$download()}}{
+  Downloads resources based on stored results or selected indices of results.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{SearchResults$download(
   output_dir,
   selected_indexes,
   stop_at_failure = TRUE,
   force = FALSE,
   prompt = TRUE
-)}\if{html}{\out{</div>}}
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{output_dir}}{A string specifying the directory where downloaded files will be saved.}
+      \item{\code{selected_indexes}}{Optional; indices of the specific results to download.}
+      \item{\code{stop_at_failure}}{Optional; controls whether the download process of multiple files should immediately stop upon encountering the first failure.}
+      \item{\code{force}}{Optional; forces the download even if the file already exists in the specified output directory.}
+      \item{\code{prompt}}{Optional; enables all user prompts for decisions during file downloads. Defaults to true.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Nothing returned but downloaded files are saved at the specified location.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{output_dir}}{A string specifying the directory where downloaded files will be saved.}
-
-\item{\code{selected_indexes}}{Optional; indices of the specific results to download.}
-
-\item{\code{stop_at_failure}}{Optional; controls whether the download process of multiple files should immediately stop upon encountering the first failure.}
-
-\item{\code{force}}{Optional; forces the download even if the file already exists in the specified output directory.}
-
-\item{\code{prompt}}{Optional; enables all user prompts for decisions during file downloads. Defaults to true.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Nothing returned but downloaded files are saved at the specified location.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SearchResults-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-SearchResults-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SearchResults$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{SearchResults$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{SearchResults$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

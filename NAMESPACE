@@ -4,15 +4,19 @@ export(Auth)
 export(Client)
 export(SearchResults)
 importFrom(R6,R6Class)
-importFrom(htmltools,HTML)
-importFrom(htmltools,html_print)
-importFrom(htmltools,tagAppendChild)
-importFrom(htmltools,tagList)
-importFrom(htmltools,tags)
-importFrom(httr2,req_body_json)
-importFrom(httr2,req_method)
-importFrom(httr2,req_url_query)
-importFrom(httr2,request)
+importFrom(htmltools,
+  HTML,
+  html_print,
+  tagAppendChild,
+  tagList,
+  tags
+)
+importFrom(httr2,
+  req_body_json,
+  req_method,
+  req_url_query,
+  request
+)
 importFrom(jsonlite,toJSON)
 importFrom(magrittr,"%>%")
 importFrom(progress,progress_bar)

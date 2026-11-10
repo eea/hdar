@@ -15,7 +15,6 @@ Description:
 License: GPL-3
 BugReports: https://github.com/eea/hdar/issues
 Encoding: UTF-8
-RoxygenNote: 7.3.2
 Imports:
   R6,
   httr2,
@@ -31,3 +30,4 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+Config/roxygen2/version: 8.1.1
