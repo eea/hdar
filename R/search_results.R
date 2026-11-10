@@ -167,19 +167,35 @@ SearchResults <- R6::R6Class("SearchResults",
       return(NA)
     },
     prompt_user_confirmation = function(total_size) {
-      if (total_size >= private$LARGE_DOWNLOAD_SIZE) {
-        repeat {
-          message("The total size is ", scales::label_bytes()(total_size), ". Do you want to proceed? (Y/N): ")
-          answer <- tolower(readLines(n = 1))
-          if (answer %in% c("y", "n")) {
-            return(answer == "y")
-          } else {
-            message("Invalid input. Please enter 'Y' or 'N'.\n")
-            return(TRUE)
-          }
-        }
-      } else {
+      if (total_size < private$LARGE_DOWNLOAD_SIZE) {
         return(TRUE)
+      }
+
+      # Scripts and non-interactive sessions cannot answer a prompt.
+      if (!interactive()) {
+        message(
+          "The total size is ", scales::label_bytes()(total_size),
+          ". Non-interactive session: proceeding with the download."
+        )
+        return(TRUE)
+      }
+
+      repeat {
+        message("The total size is ", scales::label_bytes()(total_size), ". Do you want to proceed? (Y/N): ")
+        answer <- tryCatch(readLines(n = 1), error = function(e) character(0))
+
+        # readLines() returns character(0) when stdin is not connected (e.g.
+        # Jupyter/IRkernel), which previously caused "argument is of length zero".
+        if (length(answer) == 0) {
+          message("No interactive input available: proceeding with the download.")
+          return(TRUE)
+        }
+
+        answer <- tolower(trimws(answer[1]))
+        if (answer %in% c("y", "n")) {
+          return(answer == "y")
+        }
+        message("Invalid input. Please enter 'Y' or 'N'.")
       }
     },
     check_resource_name = function(url) {
